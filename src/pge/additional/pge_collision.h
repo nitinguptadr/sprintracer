@@ -1,6 +1,13 @@
 #pragma once
+
 #include "pebble.h"
 #include "../pge.h"  // GLine
+
+// Convenience types
+typedef struct GLine {
+  GPoint p1;
+  GPoint p2;
+} GLine;
 
 bool pge_collision_rectangle_rectangle(GRect *rect_a, GRect *rect_b);
 

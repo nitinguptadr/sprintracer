@@ -13,179 +13,36 @@
   },
   "resources": {
     "media": [
-      {
-        "type":"png",
-        "name":"MAIN_MENU_BG",
-        "file":"images/trackcircle.png"
-      },{
-        "type":"png",
-        "name":"TRACK_CIRCLE",
-        "file":"images/trackcircle.png"
-      },{
-        "type":"png",
-        "name":"FINISH_LINE",
-        "file":"images/finishline.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_0",
-        "file":"images/carblack0.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_45",
-        "file":"images/carblack45.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_90",
-        "file":"images/carblack90.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_135",
-        "file":"images/carblack135.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_180",
-        "file":"images/carblack180.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_225",
-        "file":"images/carblack225.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_270",
-        "file":"images/carblack270.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BLACK_315",
-        "file":"images/carblack315.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_0",
-        "file":"images/carwhite0.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_45",
-        "file":"images/carwhite45.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_90",
-        "file":"images/carwhite90.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_135",
-        "file":"images/carwhite135.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_180",
-        "file":"images/carwhite180.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_225",
-        "file":"images/carwhite225.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_270",
-        "file":"images/carwhite270.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_WHITE_315",
-        "file":"images/carwhite315.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_0",
-        "file":"images/cargray0.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_45",
-        "file":"images/cargray45.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_90",
-        "file":"images/cargray90.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_135",
-        "file":"images/cargray135.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_180",
-        "file":"images/cargray180.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_225",
-        "file":"images/cargray225.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_270",
-        "file":"images/cargray270.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_GRAY_315",
-        "file":"images/cargray315.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_0",
-        "file":"images/carbox0.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_45",
-        "file":"images/carbox45.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_90",
-        "file":"images/carbox90.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_135",
-        "file":"images/carbox135.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_180",
-        "file":"images/carbox180.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_225",
-        "file":"images/carbox225.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_270",
-        "file":"images/carbox270.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_BOX_315",
-        "file":"images/carbox315.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_0",
-        "file":"images/carstripe0.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_45",
-        "file":"images/carstripe45.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_90",
-        "file":"images/carstripe90.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_135",
-        "file":"images/carstripe135.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_180",
-        "file":"images/carstripe180.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_225",
-        "file":"images/carstripe225.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_270",
-        "file":"images/carstripe270.png"
-      },{
-        "type":"png-trans",
-        "name":"CAR_STRIPE_315",
-        "file":"images/carstripe315.png"
-      }
+      {  "type": "png",  "name": "MAIN_MENU_BG",  "file": "images/trackcircle.png"},
+      {  "type": "png",  "name": "VERT_TREE_35",  "file": "images/vert_tree_35.png"},
+      {  "type": "png",  "name": "VERT_BUSH_35",  "file": "images/vert_bush_35.png"},
+      {  "type": "png",  "name": "SHRUB_8",  "file": "images/shrub_8.png"},
+      {  "type": "png",  "name": "HORIZ_SHRUB_24",  "file": "images/horiz_shrub_24.png"},
+      {  "type": "png",  "name": "VERT_SHRUB_24",  "file": "images/vert_shrub_24.png"},
+      {  "type": "png",  "name": "HORIZ_WALL_144",  "file": "images/horiz_wall_144.png"},
+      {  "type": "png",  "name": "VERT_WALL_168",  "file": "images/vert_wall_168.png"},
+      {  "type": "png",  "name": "GRASS_50",  "file": "images/grass_50.png"},
+      {  "type": "png",  "name": "VERT_WATER_24",  "file": "images/vert_water_24.png"},
+      {  "type": "png",  "name": "HORIZ_WATER_24",  "file": "images/horiz_water_24.png"},
+      {  "type": "png",  "name": "CURVE_ROAD_NW",  "file": "images/curve_road_nw.png"},
+      {  "type": "png",  "name": "CURVE_ROAD_NE",  "file": "images/curve_road_ne.png"},
+      {  "type": "png",  "name": "CURVE_ROAD_SE",  "file": "images/curve_road_se.png"},
+      {  "type": "png",  "name": "CURVE_ROAD_SW",  "file": "images/curve_road_sw.png"},
+      {  "type": "png",  "name": "HORIZ_ROAD_50",  "file": "images/horiz_road_50.png"},
+      {  "type": "png",  "name": "VERT_ROAD_50",  "file": "images/vert_road_50.png"},
+      {  "type": "png",  "name": "FINISH_LINE_VERT",  "file": "images/finish_line_vert.png"},
+      {  "type": "png",  "name": "BG_LEVEL_0",  "file": "images/level0_small.png"},
+      {  "type": "png",  "name": "CAR_RED",  "file": "images/car_red.png"},
+      {  "type": "png",  "name": "CAR_YELLOW",  "file": "images/car_yellow.png"},
+      {  "type": "png",  "name": "CAR_ORANGE",  "file": "images/car_orange.png"},
+      {  "type": "png",  "name": "CAR_GREEN",  "file": "images/car_green.png"},
+      {  "type": "png",  "name": "CAR_BLUE",  "file": "images/car_blue.png"},
+      {  "type": "png",  "name": "CAR_PURPLE",  "file": "images/car_purple.png"},
+      {  "type": "png",  "name": "CAR_WHITE",  "file": "images/car_white.png"}
     ]
-  }
+  },
+  "targetPlatforms": [
+    "basalt"
+  ],
+  "sdkVersion": "3"
 }

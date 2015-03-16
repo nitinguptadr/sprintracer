@@ -5,10 +5,9 @@
  * 2. Easy to manage entity position and frame animation
  */
 
+#pragma once
+ 
 #include <pebble.h>
-
-#ifndef PGE_SPRITE_H
-#define PGE_SPRITE_H
 
 // Sprite base object
 typedef struct {
@@ -29,7 +28,7 @@ void pge_sprite_destroy(PGESprite *this);
 /**
  * Set the current animation frame
  */
-void pge_sprite_set_frame(PGESprite *this, int resource_id);
+void pge_sprite_set_anim_frame(PGESprite *this, int resource_id);
 
 /**
  * Draw the sprite's bitmap to the graphics context
@@ -56,4 +55,7 @@ void pge_sprite_move(PGESprite *this, int dx, int dy);
  */
 bool pge_check_collision(PGESprite* sprite1, PGESprite *sprite2);
 
-#endif
+/**
+ * Get the on-screen bounds of the PGESprite
+ */
+GRect pge_sprite_get_bounds(PGESprite *this);
