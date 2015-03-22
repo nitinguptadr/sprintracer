@@ -7,6 +7,7 @@ PGESprite* pge_sprite_create(GPoint position, int initial_resource_id) {
   // Allocate
   this->bitmap = gbitmap_create_with_resource(initial_resource_id);
   this->position = position;
+  this->angle = 0;
 
   // Finally
   return this;
@@ -32,7 +33,15 @@ void pge_sprite_draw(PGESprite *this, GContext *ctx) {
 #elif PBL_PLATFORM_BASALT
   GRect bounds = gbitmap_get_bounds(this->bitmap);
 #endif
-  graphics_draw_bitmap_in_rect(ctx, this->bitmap, GRect(this->position.x, this->position.y, bounds.size.w, bounds.size.h));
+
+  if (this->angle == 0) {
+    graphics_draw_bitmap_in_rect(ctx, this->bitmap, GRect(this->position.x, this->position.y, bounds.size.w, bounds.size.h));
+  } else {
+    GPoint rotation_center = GPoint(bounds.origin.x + (bounds.size.w / 2), bounds.origin.y + (bounds.size.h / 2));
+    //void graphics_draw_rotated_bitmap(GContext *ctx, GBitmap *src, GPoint src_ic, int rotation, GPoint dest_ic) {
+    //graphics_draw_rotated_bitmap(ctx, this->bitmap, GPoint(this->position.x + rotation_center.x, this->position.y + rotation_center.y), this->angle, GPointZero);
+    graphics_draw_rotated_bitmap(ctx, this->bitmap, rotation_center, this->angle, GPoint(this->position.x + rotation_center.x, this->position.y + rotation_center.y));
+  }
 }
 
 void pge_sprite_set_position(PGESprite *this, GPoint new_position) {
@@ -91,4 +100,8 @@ GRect pge_sprite_get_bounds(PGESprite *this) {
   GRect bounds = gbitmap_get_bounds(this->bitmap);
 #endif
   return GRect(this->position.x, this->position.y, bounds.size.w, bounds.size.h);
+}
+
+void pge_sprite_set_rotation(PGESprite *this, int32_t angle) {
+  this->angle = angle;
 }

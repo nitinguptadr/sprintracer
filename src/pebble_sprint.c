@@ -13,47 +13,35 @@
 #include "pge/additional/pge_collision.h"
 #include "pge/additional/pge_splash.h"
 
-#define ROTATION_0      0
-#define ROTATION_45    45
-#define ROTATION_90    90
-#define ROTATION_135  135
-#define ROTATION_180  180
-#define ROTATION_225  225
-#define ROTATION_270  270
-#define ROTATION_315  315
-
-#define NUM_DIRECTIONS 8
-
 // Car dimensions
 // 12px by 18 px - 0 degrees
 // 18px by 18 px - 45 degrees
 
 #define CAR_SIZE 18
-#define CAR_SPEED_DEFAULT 2
+#define CAR_SPEED_DEFAULT 3.5
 #define CAR_SPEED_MAX 5
-#define ANGLE_CHANGE 8
+#define ANGLE_CHANGE 9
 #define ANGLE_CHANGE_RESOURCE 45
 #define ANGLE_MASK 360
 
 #define DEG_TO_TRIG_ANGLE(angle) (((angle % 360) * TRIG_MAX_ANGLE) / 360)
-#define M_PI 3.14159265358979323846264338327950288
-#define DEGREES_TO_RADIANS(angle) (((angle) / 180.0) * M_PI)
 
 static Window *s_game_window;
 static TextLayer *s_game_info_layer;
 #define TEXT_BUFFER_SIZE 20
-char s_game_info_buffer[TEXT_BUFFER_SIZE];
-bool s_game_initialized = false;
+static char s_game_info_buffer[TEXT_BUFFER_SIZE];
+static bool s_game_initialized = false;
+static GRect s_game_bounds;
 
 static uint8_t count_down = 3;
-static double car_speed = CAR_SPEED_DEFAULT;
+static float car_speed = CAR_SPEED_DEFAULT;
 
 static LevelNumId s_current_level = LEVEL_ID0;
 
 enum {
-  ROTATION_CCW = -1,  // counter-clockwise - UP button - subtract ANGLE_CHANGE
+  ROTATION_CCW = -1,  // counter-clockwise - UP button - add ANGLE_CHANGE
   ROTATION_NONE = 0,  // none - don't change
-  ROTATION_CW = 1     // clockwise - DOWN button - add ANGLE_CHANGE
+  ROTATION_CW = 1     // clockwise - DOWN button - subtract ANGLE_CHANGE
 };
 static int direction = ROTATION_NONE;
 
@@ -67,8 +55,8 @@ typedef struct {
   int angle;
   int32_t x_change;
   int32_t y_change;
-  double pos_x;
-  double pos_y;
+  float pos_x;
+  float pos_y;
 } Car;
 
 //static int s_direction, s_score;
@@ -129,8 +117,6 @@ static void update_car_position(Car* car_ptr) {
   // Move square and wrap to screen
   if(car_ptr->moving) {
 
-    //APP_LOG(APP_LOG_LEVEL_DEBUG, "pos: %d, %d %d", pos.x, pos.y, (int16_t)car_speed);
-
     // Check if car collides with any of the walls - use the center point of each of the four walls
     // of the sprite to check for the direction of the collision
     GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
@@ -143,9 +129,11 @@ static void update_car_position(Car* car_ptr) {
 
     // Determine direction of moving car and based on allowable directions, update the car's
     // new position
-
-    double x_direction = car_speed*sin(DEGREES_TO_RADIANS(car_ptr->angle));
-    double y_direction = -car_speed*cos(DEGREES_TO_RADIANS(car_ptr->angle));
+    int32_t angle = DEG_TO_TRIG_ANGLE(car_ptr->angle);
+    float sin_value = ((float)sin_lookup(angle)) / TRIG_MAX_RATIO;
+    float cos_value = ((float)cos_lookup(angle)) / TRIG_MAX_RATIO;
+    float x_direction = car_speed*sin_value;
+    float y_direction = -car_speed*cos_value;
 
     // For   x direction - LEFT is negative X
     if (((x_direction > 0) && (allowable_directions & DIRECTION_RIGHT)) || 
@@ -160,7 +148,6 @@ static void update_car_position(Car* car_ptr) {
 
     pos.x = (int16_t)car_ptr->pos_x;
     pos.y = (int16_t)car_ptr->pos_y;
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "speed: %d, allowable directions 0x%x, angle: %d ", (int16_t)car_speed, allowable_directions, car_ptr->angle);
     
     // Update sprite
     pge_sprite_set_position(car_ptr->sprite_color, pos);
@@ -172,40 +159,33 @@ static void update_car_position(Car* car_ptr) {
 }
 
 static void update_car_angle(Car* car_ptr, int change) {
-  //int resource_id = 0; // take advantage of the known relative resource id positions in your json file
   car_ptr->prev_angle = car_ptr->angle;
   if (change < 0) {
-    car_ptr->angle = (car_user->angle + change + ANGLE_MASK) % ANGLE_MASK;
+    car_ptr->angle = (car_ptr->angle + change + ANGLE_MASK) % ANGLE_MASK;
   } else {
     car_ptr->angle = (car_ptr->angle + change) % ANGLE_MASK;
   }
 
-  //resource_id = car_ptr->resource_id + (((car_ptr->angle / ANGLE_CHANGE_RESOURCE) * 2) % (2*NUM_DIRECTIONS));
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "angle: %d, resource ID: %d, car_user->moving %d", car_ptr->angle, resource_id, car_user->moving ? 1 : 0);
-  //pge_sprite_set_anim_frame(car_ptr->sprite_white, resource_id);  
-  //pge_sprite_set_anim_frame(car_ptr->sprite_black, resource_id + 1);  
-  //pge_sprite_set_anim_frame(car_ptr->sprite_color, resource_id + 1);  
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "update_car_angle %d", car_ptr->angle);
+  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 }
 
 void update_game_bounds() {
   // Update game frame based on the car position such that the car is centered in the frame
   Layer *game_layer = pge_get_canvas();
   GRect car_bounds = pge_sprite_get_bounds(car_user->sprite_color);
-  GRect game_bounds = GRect(-(car_bounds.origin.x - (SCREEN_RES_COLS / 2)), -(car_bounds.origin.y - (SCREEN_RES_ROWS / 2)),
+  s_game_bounds = GRect(-(car_bounds.origin.x - (SCREEN_RES_COLS / 2)), -(car_bounds.origin.y - (SCREEN_RES_ROWS / 2)),
                             SCREEN_RES_COLS, SCREEN_RES_ROWS);
 
-  layer_set_bounds(game_layer, game_bounds);
-
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "bounds: %d %d %d %d", game_bounds.origin.x, game_bounds.origin.y, game_bounds.size.w, game_bounds.size.h);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "car: %d %d %d %d", car_bounds.origin.x, car_bounds.origin.y, car_bounds.size.w, car_bounds.size.h);
+  layer_set_bounds(game_layer, s_game_bounds);
 }
 
 static void logic() {
-  snprintf(s_game_info_buffer, sizeof(s_game_info_buffer), "speed:%ld", (int32_t)(car_speed*10));
+  //snprintf(s_game_info_buffer, sizeof(s_game_info_buffer), "speed:%ld", (int32_t)(car_speed*10));
   text_layer_set_text(s_game_info_layer, s_game_info_buffer);
 
   update_car_position(car_user);
-  //update_car_position(car_opp1);
+  update_car_position(car_opp1);
   //update_car_position(car_opp2);
   //update_car_position(car_opp3);
 
@@ -227,7 +207,7 @@ void draw(GContext *ctx) {
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, GRect(0, 0, SCREEN_RES_COLS, SCREEN_RES_ROWS), 0, GCornerNone);
 
-  level_draw(ctx, LEVEL_ID0);
+  level_draw(ctx, s_game_bounds);
 
   car_draw(car_user, ctx);
   car_draw(car_opp1, ctx);
@@ -244,15 +224,12 @@ static void click(int button_id, bool long_click) {
       break;
 
     case BUTTON_ID_SELECT:
+      // TODO: Make this dependent on how many speed_ups are obtained
       car_speed = (car_speed + 0.5);
       if (car_speed > CAR_SPEED_MAX) {
         car_speed = 0.5;
       }
       car_user->moving = true;
-      GPoint pos = pge_sprite_get_position(car_user->sprite_color);
-      car_user->pos_x = pos.x;
-      car_user->pos_y = pos.y;
-
       break;
 
     case BUTTON_ID_DOWN:
@@ -266,7 +243,7 @@ static void click(int button_id, bool long_click) {
 
 static void game_deinit() {
   text_layer_destroy(s_game_info_layer);
-  level_deinitialize(s_current_level);
+  level_deinitialize();
 
   car_destroy(car_user);
   car_user = NULL;
@@ -294,10 +271,14 @@ static void game_init() {
   level_initialize(game_layer, s_current_level);
 
   s_game_info_layer = text_layer_create((GRect) { .origin = { 0, 0 }, .size = { 144, 20 } });
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Created text layer");
   //layer_add_child(game_layer, text_layer_get_layer(s_game_info_layer));
   text_layer_set_text(s_game_info_layer, s_game_info_buffer);
   text_layer_set_text_alignment(s_game_info_layer, GTextAlignmentCenter);
-  snprintf(s_game_info_buffer, sizeof(s_game_info_buffer), "X:%ld,Y%ld", car_user->x_change, car_user->y_change);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Printing buffer");
+  //snprintf(s_game_info_buffer, sizeof(s_game_info_buffer), "X:%ld,Y%ld", car_user->x_change, car_user->y_change);
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Creating Cars");
 
   car_user = car_create((GPoint){.x = 120, .y = 60}, 0,
                         RESOURCE_ID_CAR_RED, RESOURCE_ID_CAR_RED, RESOURCE_ID_CAR_RED);
@@ -314,9 +295,23 @@ static void game_init() {
   car_pace = car_create((GPoint){.x = 120, .y = 34}, 0,
                         RESOURCE_ID_CAR_WHITE, RESOURCE_ID_CAR_WHITE, RESOURCE_ID_CAR_WHITE);
 
+  update_car_angle(car_user, -90);
+  update_car_angle(car_opp1, -90);
+  update_car_angle(car_opp2, -90);
+  update_car_angle(car_opp3, -90);
+
+  GPoint pos = pge_sprite_get_position(car_user->sprite_color);
+  car_user->pos_x = pos.x;
+  car_user->pos_y = pos.y;
+
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating bounds");
   update_game_bounds();
 
   s_game_initialized = true;
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Game initialized");
+
 }
 
 static void title_click(int button_id, bool long_click) {
@@ -350,7 +345,7 @@ static void pebble_sprint_init(void) {
 
   //pge_set_background(RESOURCE_ID_BG_LEVEL_0);
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window Loaded");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window Loaded--");
 }
 
 void pge_init() {

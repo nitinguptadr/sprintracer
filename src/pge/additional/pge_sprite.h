@@ -13,6 +13,7 @@
 typedef struct {
   GBitmap *bitmap;
   GPoint position;
+  int32_t angle;
 } PGESprite;
 
 /**
@@ -59,3 +60,9 @@ bool pge_check_collision(PGESprite* sprite1, PGESprite *sprite2);
  * Get the on-screen bounds of the PGESprite
  */
 GRect pge_sprite_get_bounds(PGESprite *this);
+
+/**
+ * Rotate the sprite by a specific angle (0..MAX_TRIG_ANGLE).
+ */
+void pge_sprite_set_rotation(PGESprite *this, int32_t angle);
+

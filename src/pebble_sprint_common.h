@@ -1,4 +1,4 @@
-
+#pragma once
 
 #define SCREEN_RES_ROWS 168
 #define SCREEN_RES_COLS 144
@@ -13,4 +13,8 @@
 
 typedef enum {
   LEVEL_ID0,
+
+  // Add new levels above this
+  LEVEL_COUNT,
+  LEVEL_INVALID
 } LevelNumId;

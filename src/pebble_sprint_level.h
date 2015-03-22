@@ -2,6 +2,7 @@
 
 #include <pebble.h>
 
+#include "pebble_sprint_common.h"
 #include "pge/additional/pge_sprite.h"
 
 typedef struct {
@@ -10,12 +11,23 @@ typedef struct {
   PGESprite *sprite;
 } LevelSpriteLocation;
 
+typedef struct {
+  LevelNumId level;
+  LevelSpriteLocation *sprites;
+  LevelSpriteLocation *scenery;
+  LevelSpriteLocation *walls;
+  LevelSpriteLocation *tracks;
+  LevelSpriteLocation *finish_line;
+} LevelSpriteDetails;
+
+// Intializes current level
 void level_initialize(Layer *game_layer, uint8_t level);
 
-void level_deinitialize(uint8_t level);
+// Deintializes current level
+void level_deinitialize();
 
-// Draw level based on the position of the car
-void level_draw(GContext *ctx, uint8_t level);
+// Draw the current level
+void level_draw(GContext *ctx, GRect game_bounds);
 
 uint8_t level_collision_walls(LevelNumId level, GRect car_bounds);
 

@@ -13,7 +13,6 @@
   },
   "resources": {
     "media": [
-      {  "type": "png",  "name": "MAIN_MENU_BG",  "file": "images/trackcircle.png"},
       {  "type": "png",  "name": "VERT_TREE_35",  "file": "images/vert_tree_35.png"},
       {  "type": "png",  "name": "VERT_BUSH_35",  "file": "images/vert_bush_35.png"},
       {  "type": "png",  "name": "SHRUB_8",  "file": "images/shrub_8.png"},
