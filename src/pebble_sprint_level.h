@@ -18,6 +18,7 @@ typedef struct {
   LevelSpriteLocation *walls;
   LevelSpriteLocation *tracks;
   LevelSpriteLocation *finish_line;
+  GPoint *track_points0;
 } LevelSpriteDetails;
 
 // Intializes current level
@@ -32,3 +33,5 @@ void level_draw(GContext *ctx, GRect game_bounds);
 uint8_t level_collision_walls(LevelNumId level, GRect car_bounds);
 
 uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent);
+
+void update_car_angle_opp(Car* car_ptr);

@@ -24,8 +24,6 @@
 #define ANGLE_CHANGE_RESOURCE 45
 #define ANGLE_MASK 360
 
-#define DEG_TO_TRIG_ANGLE(angle) (((angle % 360) * TRIG_MAX_ANGLE) / 360)
-
 static Window *s_game_window;
 static TextLayer *s_game_info_layer;
 #define TEXT_BUFFER_SIZE 20
@@ -45,20 +43,6 @@ enum {
 };
 static int direction = ROTATION_NONE;
 
-typedef struct {
-  PGESprite *sprite_white;
-  PGESprite *sprite_black;
-  PGESprite *sprite_color;
-  int resource_id;
-  bool moving;
-  int prev_angle;
-  int angle;
-  int32_t x_change;
-  int32_t y_change;
-  float pos_x;
-  float pos_y;
-} Car;
-
 //static int s_direction, s_score;
 //static bool s_moving = false;
 PGESprite* bg_level = NULL;
@@ -72,6 +56,7 @@ Car* car_pace = NULL;
 
 Car* car_create(GPoint start_position, int angle, int resource_white, int resource_black, int resource_color) {
   Car *car_ptr = malloc(sizeof(Car));
+  memset(car_ptr, 0x00, sizeof(Car));
   car_ptr->angle = angle;
   car_ptr->x_change = 0;
   car_ptr->y_change = 0;
@@ -123,9 +108,18 @@ static void update_car_position(Car* car_ptr) {
     uint8_t allowable_directions = level_collision_walls(s_current_level, car_bounds);
 
     // Check if car collides with any other car
-    allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp1->sprite_color));
-    allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp2->sprite_color));
-    allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp3->sprite_color));
+    if (car_ptr != car_user) {
+      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_user->sprite_color));
+    }
+    if (car_ptr != car_opp1) {
+      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp1->sprite_color));
+    }
+    if (car_ptr != car_opp2) {
+      //allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp2->sprite_color));
+    }
+    if (car_ptr != car_opp3) {
+      //allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp3->sprite_color));
+    }
 
     // Determine direction of moving car and based on allowable directions, update the car's
     // new position
@@ -166,7 +160,7 @@ static void update_car_angle(Car* car_ptr, int change) {
     car_ptr->angle = (car_ptr->angle + change) % ANGLE_MASK;
   }
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "update_car_angle %d", car_ptr->angle);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "update_car_angle %d", car_ptr->angle);
   pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 }
 
@@ -186,9 +180,11 @@ static void logic() {
 
   update_car_position(car_user);
   update_car_position(car_opp1);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "opp: %d %d %d %d", (int)car_opp1->pos_x, (int)car_opp1->pos_y, car_opp1->moving, car_opp1->angle);
   //update_car_position(car_opp2);
   //update_car_position(car_opp3);
 
+  // Update user car angle
   if (pge_get_button_state(BUTTON_ID_UP)) {
     direction = ROTATION_CCW;
     update_car_angle(car_user, direction * ANGLE_CHANGE); 
@@ -198,6 +194,9 @@ static void logic() {
   } else {
     direction = ROTATION_NONE;
   }
+
+  // Update oppenent car angles
+  update_car_angle_opp(car_opp1);
 
   update_game_bounds();
 }
@@ -230,6 +229,7 @@ static void click(int button_id, bool long_click) {
         car_speed = 0.5;
       }
       car_user->moving = true;
+      car_opp1->moving = true;
       break;
 
     case BUTTON_ID_DOWN:
@@ -271,11 +271,9 @@ static void game_init() {
   level_initialize(game_layer, s_current_level);
 
   s_game_info_layer = text_layer_create((GRect) { .origin = { 0, 0 }, .size = { 144, 20 } });
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Created text layer");
   //layer_add_child(game_layer, text_layer_get_layer(s_game_info_layer));
   text_layer_set_text(s_game_info_layer, s_game_info_buffer);
   text_layer_set_text_alignment(s_game_info_layer, GTextAlignmentCenter);
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Printing buffer");
   //snprintf(s_game_info_buffer, sizeof(s_game_info_buffer), "X:%ld,Y%ld", car_user->x_change, car_user->y_change);
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Creating Cars");
@@ -300,12 +298,14 @@ static void game_init() {
   update_car_angle(car_opp2, -90);
   update_car_angle(car_opp3, -90);
 
+  // Update positions of each car
   GPoint pos = pge_sprite_get_position(car_user->sprite_color);
   car_user->pos_x = pos.x;
   car_user->pos_y = pos.y;
+  pos = pge_sprite_get_position(car_opp1->sprite_color);
+  car_opp1->pos_x = pos.x;
+  car_opp1->pos_y = pos.y;
 
-
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Updating bounds");
   update_game_bounds();
 
   s_game_initialized = true;

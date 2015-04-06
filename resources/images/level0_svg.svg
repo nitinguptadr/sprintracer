@@ -912,6 +912,14 @@
                 <rect id="Rectangle-310" x="0" y="10" width="5" height="5"></rect>
                 <rect id="Rectangle-311" x="0" y="0" width="5" height="5"></rect>
             </g>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="85" y="85" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="85" y="160" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="130" y="185" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="130" y="205" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="85" y="235" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="85" y="260" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="210" y="260" width="5" height="5"></rect>
+            <rect id="track_point" fill="#FF00FF" sketch:type="MSShapeGroup" x="210" y="85" width="5" height="5"></rect>
         </g>
     </g>
 </svg>

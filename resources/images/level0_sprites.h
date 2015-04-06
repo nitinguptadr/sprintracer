@@ -115,6 +115,17 @@ static LevelSpriteLocation level0_tracks[] = {
   { RESOURCE_ID_VERT_ROAD_50, {200, 200}, NULL },
 };
 
+static GPoint level0_track_points0[] = {
+  {85, 85},
+  {85, 160},
+  {130, 185},
+  {130, 205},
+  {85, 235},
+  {85, 260},
+  {210, 260},
+  {210, 85},
+};
+
 static LevelSpriteDetails level0_details = {
   .level = LEVEL_ID0,
   .sprites = level0_sprites,
@@ -122,4 +133,5 @@ static LevelSpriteDetails level0_details = {
   .walls = level0_walls,
   .tracks = level0_tracks,
   .finish_line = level0_finish_line,
+  .track_points0 = level0_track_points0,
 };

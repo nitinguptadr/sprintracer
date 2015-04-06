@@ -10,32 +10,34 @@ static uint32_t current_num_scenery = 0;
 static uint32_t current_num_sprites = 0;
 static uint32_t current_num_walls = 0;
 static uint32_t current_num_tracks = 0;
+static uint32_t current_num_track_points0 = 0;
 
 void level_initialize(Layer *game_layer, LevelNumId level) {
   switch(level) {
     case LEVEL_ID0:
       layer_set_frame(game_layer, LEVEL0_BOUNDS);
       current_level = &level0_details;
-      current_num_scenery = sizeof(level0_scenery);
-      current_num_sprites = sizeof(level0_sprites);
-      current_num_walls = sizeof(level0_walls);
-      current_num_tracks = sizeof(level0_tracks);
+      current_num_scenery = sizeof(level0_scenery) / sizeof(LevelSpriteLocation);
+      current_num_sprites = sizeof(level0_sprites) / sizeof(LevelSpriteLocation);
+      current_num_walls = sizeof(level0_walls) / sizeof(LevelSpriteLocation);
+      current_num_tracks = sizeof(level0_tracks) / sizeof(LevelSpriteLocation);
+      current_num_track_points0 = sizeof(level0_track_points0) / sizeof(GPoint);
       break;
     default:
       break;
   }
 
   if (current_level) {
-    for (uint32_t index = 0; index < (current_num_scenery / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_scenery; index++) {
       current_level->scenery[index].sprite = pge_sprite_create(current_level->scenery[index].offset, current_level->scenery[index].resource_id);
     }
-    for (uint32_t index = 0; index < (current_num_sprites / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_sprites; index++) {
       current_level->sprites[index].sprite = pge_sprite_create(current_level->sprites[index].offset, current_level->sprites[index].resource_id);
     }
-    for (uint32_t index = 0; index < (current_num_walls / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_walls; index++) {
       current_level->walls[index].sprite = pge_sprite_create(current_level->walls[index].offset, current_level->walls[index].resource_id);
     }
-    for (uint32_t index = 0; index < (current_num_tracks / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_tracks; index++) {
       current_level->tracks[index].sprite = pge_sprite_create(current_level->tracks[index].offset, current_level->tracks[index].resource_id);
     }
 
@@ -49,16 +51,16 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
 
 void level_deinitialize() {
   if (current_level) {
-    for (uint32_t index = 0; index < (current_num_scenery / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_scenery; index++) {
       pge_sprite_destroy(current_level->scenery[index].sprite);
     }
-    for (uint32_t index = 0; index < (current_num_sprites / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_sprites; index++) {
       pge_sprite_destroy(current_level->sprites[index].sprite);
     }
-    for (uint32_t index = 0; index < (current_num_walls / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_walls; index++) {
       pge_sprite_destroy(current_level->walls[index].sprite);
     }
-    for (uint32_t index = 0; index < (current_num_tracks / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_tracks; index++) {
       pge_sprite_destroy(current_level->tracks[index].sprite);
     }
 
@@ -100,26 +102,26 @@ void level_draw(GContext *ctx, GRect game_bounds) {
 
     // Only draw sprites that are on screen
     graphics_context_set_compositing_mode(ctx, GCompOpAssign);
-    for (uint32_t index = 0; index < (current_num_scenery / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_scenery; index++) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->scenery[index].sprite);
       if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
         pge_sprite_draw(current_level->scenery[index].sprite, ctx);
       }
     }
     graphics_context_set_compositing_mode(ctx, GCompOpSet);
-    for (uint32_t index = 0; index < (current_num_sprites / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_sprites; index++) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->sprites[index].sprite);
       if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
         pge_sprite_draw(current_level->sprites[index].sprite, ctx);
       }
     }
-    for (uint32_t index = 0; index < (current_num_walls / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_walls; index++) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->walls[index].sprite);
       if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
         pge_sprite_draw(current_level->walls[index].sprite, ctx);
       }
     }
-    for (uint32_t index = 0; index < (current_num_tracks / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_tracks; index++) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->tracks[index].sprite);
       if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
         pge_sprite_draw(current_level->tracks[index].sprite, ctx);
@@ -152,7 +154,7 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
   // the appropriate direction of collision
   if (current_level) {
     // Check walls
-    for (uint32_t index = 0; index < (current_num_walls / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_walls; index++) {
       GRect wall_bounds = pge_sprite_get_bounds(current_level->walls[index].sprite);
       if (pge_collision_line_rectangle(&top, &wall_bounds) || pge_collision_point_rectangle(&top_center, &wall_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_UP);
@@ -168,7 +170,7 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
       }
     }
     // Check other sprites
-    for (uint32_t index = 0; index < (current_num_sprites / sizeof(LevelSpriteLocation)); index++) {
+    for (uint32_t index = 0; index < current_num_sprites; index++) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->sprites[index].sprite);
       if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_UP);
@@ -222,4 +224,35 @@ uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent) {
   return allowable_directions;
 }
 
+void update_car_angle_opp(Car* car_ptr) {
+  if (!car_ptr->moving) {
+    return;
+  }
+
+  // Get car's center point
+  GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
+  GPoint car_origin = pge_sprite_get_position(car_ptr->sprite_color);
+  GPoint car_center = GPoint(car_origin.x + (car_bounds.size.w / 2), 
+                             car_origin.y + (car_bounds.size.h / 2));
+
+  // Get car's current track point index
+  int track_point_index = car_ptr->track_point_index;
+  GPoint current_track_point = current_level->track_points0[track_point_index];
+
+  // If car overlaps current track pointer index, update to next track point index
+  if (pge_collision_point_rectangle(&current_track_point, &car_bounds)) {
+    track_point_index = (track_point_index + 1) % current_num_track_points0;
+    car_ptr->track_point_index = track_point_index;
+    current_track_point = current_level->track_points0[track_point_index];
+  }
+
+  // Determine angle between car center point and current track pointer index
+  int16_t dx = car_center.x - current_track_point.x;
+  int16_t dy = car_center.y - current_track_point.y;
+  car_ptr->angle = ((360 * atan2_lookup(dy, dx)) / TRIG_MAX_ANGLE) - 90; // subtract 90 to get correct angle
+
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "--opp: %d %d %d", dx, dy, car_ptr->angle);
+
+  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
+}
 
