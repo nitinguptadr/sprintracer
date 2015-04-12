@@ -4,8 +4,6 @@
 
 #define LEVEL0_BOUNDS GRect(0, 0, SCREEN_RES_COLS*4, SCREEN_RES_ROWS*4)
 #define LEVEL0_FRAME GRect(SCREEN_RES_COLS, SCREEN_RES_ROWS, SCREEN_RES_COLS*2, SCREEN_RES_ROWS*2)
-#define NUM_WALLS_LEVEL0 8
-#define WALL_WIDTH_PIXELS 8
 
 // Used for sprite collision - drawn in order of index in array
 static LevelSpriteLocation level0_sprites[] = {
@@ -116,14 +114,46 @@ static LevelSpriteLocation level0_tracks[] = {
 };
 
 static GPoint level0_track_points0[] = {
-  {85, 85},
-  {85, 160},
-  {130, 185},
-  {130, 205},
-  {85, 235},
-  {85, 260},
-  {210, 260},
-  {210, 85},
+  {90, 70},
+  {75, 75},
+  {70, 90},
+  {70, 105},
+  {70, 140},
+  {70, 155},
+  {75, 170},
+  {90, 175},
+  {105, 170},
+  {120, 175},
+  {125, 190},
+  {125, 205},
+  {120, 220},
+  {105, 225},
+  {90, 220},
+  {75, 225},
+  {70, 240},
+  {70, 255},
+  {75, 270},
+  {90, 275},
+  {105, 275},
+  {140, 275},
+  {155, 275},
+  {190, 275},
+  {205, 275},
+  {220, 270},
+  {225, 255},
+  {225, 240},
+  {225, 205},
+  {225, 190},
+  {225, 155},
+  {225, 140},
+  {225, 105},
+  {225, 90},
+  {220, 75},
+  {205, 70},
+  {190, 70},
+  {155, 70},
+  {140, 70},
+  {105, 70},
 };
 
 static LevelSpriteDetails level0_details = {

@@ -240,7 +240,12 @@ void update_car_angle_opp(Car* car_ptr) {
   GPoint current_track_point = current_level->track_points0[track_point_index];
 
   // If car overlaps current track pointer index, update to next track point index
-  if (pge_collision_point_rectangle(&current_track_point, &car_bounds)) {
+  // Create a rectangle with current point as center
+  GRect current_rect = GRect(current_track_point.x - TRACKPOINT_RADIUS,
+                             current_track_point.y - TRACKPOINT_RADIUS,
+                             2 * TRACKPOINT_RADIUS,
+                             2 * TRACKPOINT_RADIUS);
+  if (pge_collision_rectangle_rectangle(&current_rect, &car_bounds)) {
     track_point_index = (track_point_index + 1) % current_num_track_points0;
     car_ptr->track_point_index = track_point_index;
     current_track_point = current_level->track_points0[track_point_index];
@@ -249,10 +254,22 @@ void update_car_angle_opp(Car* car_ptr) {
   // Determine angle between car center point and current track pointer index
   int16_t dx = car_center.x - current_track_point.x;
   int16_t dy = car_center.y - current_track_point.y;
-  car_ptr->angle = ((360 * atan2_lookup(dy, dx)) / TRIG_MAX_ANGLE) - 90; // subtract 90 to get correct angle
+  int angle = ((360 * atan2_lookup(dy, dx)) / TRIG_MAX_ANGLE) - 90; // subtract 90 to get correct angle
+//  APP_LOG(APP_LOG_LEVEL_DEBUG, "angle: %d", angle);
 
+#if 0 // TODO: Causes cars to go wild
+  // Update the current angle of the car by a maximum amount
+  if ((angle > car_ptr->angle) && ((angle - car_ptr->angle) > OPP_ANGLE_CHANGE)) {
+    car_ptr->angle += OPP_ANGLE_CHANGE;
+  } else if ((angle < car_ptr->angle) && ((car_ptr->angle - angle) > OPP_ANGLE_CHANGE)) {
+    car_ptr->angle -= OPP_ANGLE_CHANGE;
+  } else {
+  }
+#endif
+  car_ptr->angle = angle;
+    
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "--opp: %d %d %d", dx, dy, car_ptr->angle);
-
+  
   pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 }
 

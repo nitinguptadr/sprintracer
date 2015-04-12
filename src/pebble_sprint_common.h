@@ -15,6 +15,9 @@
 
 #define DEG_TO_TRIG_ANGLE(angle) (((angle % 360) * TRIG_MAX_ANGLE) / 360)
 
+#define ANGLE_CHANGE 9
+#define TRACKPOINT_RADIUS 5
+
 typedef enum {
   LEVEL_ID0,
 

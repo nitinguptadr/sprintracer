@@ -20,7 +20,6 @@
 #define CAR_SIZE 18
 #define CAR_SPEED_DEFAULT 3.5
 #define CAR_SPEED_MAX 5
-#define ANGLE_CHANGE 9
 #define ANGLE_CHANGE_RESOURCE 45
 #define ANGLE_MASK 360
 
@@ -115,10 +114,10 @@ static void update_car_position(Car* car_ptr) {
       allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp1->sprite_color));
     }
     if (car_ptr != car_opp2) {
-      //allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp2->sprite_color));
+      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp2->sprite_color));
     }
     if (car_ptr != car_opp3) {
-      //allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp3->sprite_color));
+      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp3->sprite_color));
     }
 
     // Determine direction of moving car and based on allowable directions, update the car's
@@ -181,8 +180,8 @@ static void logic() {
   update_car_position(car_user);
   update_car_position(car_opp1);
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "opp: %d %d %d %d", (int)car_opp1->pos_x, (int)car_opp1->pos_y, car_opp1->moving, car_opp1->angle);
-  //update_car_position(car_opp2);
-  //update_car_position(car_opp3);
+  update_car_position(car_opp2);
+  update_car_position(car_opp3);
 
   // Update user car angle
   if (pge_get_button_state(BUTTON_ID_UP)) {
@@ -197,6 +196,8 @@ static void logic() {
 
   // Update oppenent car angles
   update_car_angle_opp(car_opp1);
+  update_car_angle_opp(car_opp2);
+  update_car_angle_opp(car_opp3);
 
   update_game_bounds();
 }
@@ -230,6 +231,8 @@ static void click(int button_id, bool long_click) {
       }
       car_user->moving = true;
       car_opp1->moving = true;
+      car_opp2->moving = true;
+      car_opp3->moving = true;
       break;
 
     case BUTTON_ID_DOWN:
@@ -305,6 +308,12 @@ static void game_init() {
   pos = pge_sprite_get_position(car_opp1->sprite_color);
   car_opp1->pos_x = pos.x;
   car_opp1->pos_y = pos.y;
+  pos = pge_sprite_get_position(car_opp2->sprite_color);
+  car_opp2->pos_x = pos.x;
+  car_opp2->pos_y = pos.y;
+  pos = pge_sprite_get_position(car_opp3->sprite_color);
+  car_opp3->pos_x = pos.x;
+  car_opp3->pos_y = pos.y;
 
   update_game_bounds();
 
