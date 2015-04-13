@@ -41,7 +41,15 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_level->tracks[index].sprite = pge_sprite_create(current_level->tracks[index].offset, current_level->tracks[index].resource_id);
     }
 
-    current_level->finish_line[0].sprite = pge_sprite_create(current_level->finish_line[0].offset, current_level->finish_line[0].resource_id);
+    // Create finish group items
+    current_level->finish_group->finish_line.sprite = pge_sprite_create(current_level->finish_group->finish_line.offset, current_level->finish_group->finish_line.resource_id);
+    current_level->finish_group->finish_box_1.sprite = pge_sprite_create(current_level->finish_group->finish_box_1.offset, current_level->finish_group->finish_box_1.resource_id);
+    current_level->finish_group->finish_box_2.sprite = pge_sprite_create(current_level->finish_group->finish_box_2.offset, current_level->finish_group->finish_box_2.resource_id);
+    current_level->finish_group->finish_box_3.sprite = pge_sprite_create(current_level->finish_group->finish_box_3.offset, current_level->finish_group->finish_box_3.resource_id);
+    current_level->finish_group->light_signal.sprite = pge_sprite_create(current_level->finish_group->light_signal.offset, current_level->finish_group->light_signal.resource_id);
+    current_level->finish_group->light_signal_red.sprite = pge_sprite_create(current_level->finish_group->light_signal_red.offset, current_level->finish_group->light_signal_red.resource_id);
+    current_level->finish_group->light_signal_yellow.sprite = pge_sprite_create(current_level->finish_group->light_signal_yellow.offset, current_level->finish_group->light_signal_yellow.resource_id);
+    current_level->finish_group->light_signal_green.sprite = pge_sprite_create(current_level->finish_group->light_signal_green.offset, current_level->finish_group->light_signal_green.resource_id);
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Level %d initialized", level);
   } else {
@@ -64,7 +72,14 @@ void level_deinitialize() {
       pge_sprite_destroy(current_level->tracks[index].sprite);
     }
 
-    pge_sprite_destroy(current_level->finish_line[0].sprite);
+    pge_sprite_destroy(current_level->finish_group->finish_line.sprite);
+    pge_sprite_destroy(current_level->finish_group->finish_box_1.sprite);
+    pge_sprite_destroy(current_level->finish_group->finish_box_2.sprite);
+    pge_sprite_destroy(current_level->finish_group->finish_box_3.sprite);
+    pge_sprite_destroy(current_level->finish_group->light_signal.sprite);
+    pge_sprite_destroy(current_level->finish_group->light_signal_red.sprite);
+    pge_sprite_destroy(current_level->finish_group->light_signal_yellow.sprite);
+    pge_sprite_destroy(current_level->finish_group->light_signal_green.sprite);
   }
 
   current_level = NULL;
@@ -128,7 +143,30 @@ void level_draw(GContext *ctx, GRect game_bounds) {
       }
     }
 
-    pge_sprite_draw(current_level->finish_line[0].sprite, ctx);
+    // Draw finish line
+    GRect sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_line.sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->finish_group->finish_line.sprite, ctx);
+    }
+
+    // Draw finish boxes and street signal
+    graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_1.sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->finish_group->finish_box_1.sprite, ctx);
+    }
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_2.sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->finish_group->finish_box_2.sprite, ctx);
+    }
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_3.sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->finish_group->finish_box_3.sprite, ctx);
+    }
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->light_signal.sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->finish_group->light_signal.sprite, ctx);
+    }
   }
 }
 
@@ -247,6 +285,10 @@ void update_car_angle_opp(Car* car_ptr) {
                              2 * TRACKPOINT_RADIUS);
   if (pge_collision_rectangle_rectangle(&current_rect, &car_bounds)) {
     track_point_index = (track_point_index + 1) % current_num_track_points0;
+    // Update lap number if crossing finish line
+    if (car_ptr->track_point_index > track_point_index) {
+      car_ptr->lap++;
+    }
     car_ptr->track_point_index = track_point_index;
     current_track_point = current_level->track_points0[track_point_index];
   }
@@ -271,5 +313,19 @@ void update_car_angle_opp(Car* car_ptr) {
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "--opp: %d %d %d", dx, dy, car_ptr->angle);
   
   pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
+}
+
+static bool crossing_finish_line(Car *car_ptr) {
+  GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
+  GRect finish_line_rect = pge_sprite_get_bounds(current_level->finish_group->finish_line.sprite);
+  return pge_collision_rectangle_rectangle(&car_bounds, &finish_line_rect);
+}
+
+void update_car_lap(Car *car_ptr) {
+  bool current_state = crossing_finish_line(car_ptr);
+  if ((current_state != car_ptr->crossing_finish) && (car_ptr->crossing_finish == false)) {
+    car_ptr->lap++;
+  }
+  car_ptr->crossing_finish = current_state;
 }
 

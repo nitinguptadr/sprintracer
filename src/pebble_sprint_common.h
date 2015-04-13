@@ -39,5 +39,7 @@ typedef struct {
   float pos_x;
   float pos_y;
   int track_point_index; // Current index on track that car is gravitating towards
+  int lap;               // Current lap number of car
+  bool crossing_finish;  // Stores whether crossing finish line or not
 } Car;
 

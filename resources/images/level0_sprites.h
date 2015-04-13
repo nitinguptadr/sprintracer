@@ -55,6 +55,10 @@ static LevelSpriteLocation level0_sprites[] = {
   { RESOURCE_ID_VERT_SHRUB_24, {192, 226}, NULL },
   { RESOURCE_ID_VERT_SHRUB_24, {184, 226}, NULL },
   { RESOURCE_ID_VERT_SHRUB_24, {160, 218}, NULL },
+  { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
+  { RESOURCE_ID_LIGHT_SIGNAL, {105, 30}, NULL },
 };
 
 static LevelSpriteLocation level0_walls[] = {
@@ -89,8 +93,15 @@ static LevelSpriteLocation level0_scenery[] = {
   { RESOURCE_ID_HORIZ_WATER_24, {120, 114}, NULL },
 };
 
-static LevelSpriteLocation level0_finish_line[] = {
+static LevelFinishLine level0_finish_group = {
   { RESOURCE_ID_FINISH_LINE_VERT, {100, 55}, NULL },
+  { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
+  { RESOURCE_ID_LIGHT_SIGNAL_RED, {105, 30}, NULL },
+  { RESOURCE_ID_LIGHT_SIGNAL_YELLOW, {105, 30}, NULL },
+  { RESOURCE_ID_LIGHT_SIGNAL_GREEN, {105, 30}, NULL },
+  { RESOURCE_ID_LIGHT_SIGNAL, {105, 30}, NULL },
 };
 
 // Track layout - drawn in order of index in array
@@ -162,6 +173,6 @@ static LevelSpriteDetails level0_details = {
   .scenery = level0_scenery,
   .walls = level0_walls,
   .tracks = level0_tracks,
-  .finish_line = level0_finish_line,
+  .finish_group = &level0_finish_group,
   .track_points0 = level0_track_points0,
 };

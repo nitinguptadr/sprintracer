@@ -30,6 +30,17 @@ static char s_game_info_buffer[TEXT_BUFFER_SIZE];
 static bool s_game_initialized = false;
 static GRect s_game_bounds;
 
+static bool s_title_pushed = false;
+
+#define NUM_LAPS_DEFAULT 2
+static uint8_t s_num_laps = NUM_LAPS_DEFAULT;
+static bool s_crossing_finish_line; // True if overlapping with finish line
+
+#define STATUS_LAYER_HEIGHT 16
+#define STATUS_LAYER_RECT GRect(0, SCREEN_RES_ROWS - STATUS_LAYER_HEIGHT, SCREEN_RES_COLS, STATUS_LAYER_HEIGHT)
+static TextLayer *s_status_layer;
+static char s_status_text[20];
+
 static uint8_t count_down = 3;
 static float car_speed = CAR_SPEED_DEFAULT;
 
@@ -50,8 +61,6 @@ Car* car_user = NULL;
 Car* car_opp1 = NULL;
 Car* car_opp2 = NULL;
 Car* car_opp3 = NULL;
-
-Car* car_pace = NULL;
 
 Car* car_create(GPoint start_position, int angle, int resource_white, int resource_black, int resource_color) {
   Car *car_ptr = malloc(sizeof(Car));
@@ -95,11 +104,13 @@ void car_draw(Car* car_ptr, GContext *ctx) {
 }
 
 static void update_car_position(Car* car_ptr) {
-  GPoint pos = pge_sprite_get_position(car_ptr->sprite_color);
-//  snprintf(s_game_info_buffer, sizeof(s_game_info_buffer), "X:%d,Y%d", car_user->x_change, car_user->y_change);
+  // Stop the car movement if current lap > # laps set
+  if (car_ptr->lap > s_num_laps) {
+    car_ptr->moving = false;
+  }
 
-  // Move square and wrap to screen
   if(car_ptr->moving) {
+    GPoint pos = pge_sprite_get_position(car_ptr->sprite_color);
 
     // Check if car collides with any of the walls - use the center point of each of the four walls
     // of the sprite to check for the direction of the collision
@@ -107,16 +118,16 @@ static void update_car_position(Car* car_ptr) {
     uint8_t allowable_directions = level_collision_walls(s_current_level, car_bounds);
 
     // Check if car collides with any other car
-    if (car_ptr != car_user) {
+    if ((car_ptr != car_user) && (car_user->lap <= s_num_laps)) {
       allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_user->sprite_color));
     }
-    if (car_ptr != car_opp1) {
+    if ((car_ptr != car_opp1) && (car_opp1->lap <= s_num_laps)) {
       allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp1->sprite_color));
     }
-    if (car_ptr != car_opp2) {
+    if ((car_ptr != car_opp2) && (car_opp2->lap <= s_num_laps)) {
       allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp2->sprite_color));
     }
-    if (car_ptr != car_opp3) {
+    if ((car_ptr != car_opp3) && (car_opp3->lap <= s_num_laps)) {
       allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp3->sprite_color));
     }
 
@@ -171,6 +182,15 @@ void update_game_bounds() {
                             SCREEN_RES_COLS, SCREEN_RES_ROWS);
 
   layer_set_bounds(game_layer, s_game_bounds);
+
+  // Update status layer location
+  GRect status_rect = GRect(car_bounds.origin.x - (SCREEN_RES_COLS / 2), car_bounds.origin.y + (SCREEN_RES_ROWS / 2) - STATUS_LAYER_HEIGHT,
+                            SCREEN_RES_COLS, STATUS_LAYER_HEIGHT);
+  layer_set_frame(text_layer_get_layer(s_status_layer), status_rect);
+}
+
+void update_status_layer() {
+  snprintf(s_status_text, sizeof(s_status_text), "Lap: %d", car_user->lap);
 }
 
 static void logic() {
@@ -193,12 +213,16 @@ static void logic() {
   } else {
     direction = ROTATION_NONE;
   }
+  
+  // Check if user car crossed finish line and update lap
+  update_car_lap(car_user);
 
   // Update oppenent car angles
   update_car_angle_opp(car_opp1);
   update_car_angle_opp(car_opp2);
   update_car_angle_opp(car_opp3);
 
+  update_status_layer();
   update_game_bounds();
 }
 
@@ -213,7 +237,6 @@ void draw(GContext *ctx) {
   car_draw(car_opp1, ctx);
   car_draw(car_opp2, ctx);
   car_draw(car_opp3, ctx);
-  car_draw(car_pace, ctx);
 }
 
 static void click(int button_id, bool long_click) {
@@ -224,11 +247,7 @@ static void click(int button_id, bool long_click) {
       break;
 
     case BUTTON_ID_SELECT:
-      // TODO: Make this dependent on how many speed_ups are obtained
-      car_speed = (car_speed + 0.5);
-      if (car_speed > CAR_SPEED_MAX) {
-        car_speed = 0.5;
-      }
+      // Start race
       car_user->moving = true;
       car_opp1->moving = true;
       car_opp2->moving = true;
@@ -245,7 +264,10 @@ static void click(int button_id, bool long_click) {
 /******************************** Title ***************************************/
 
 static void game_deinit() {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Ending Game...");
   text_layer_destroy(s_game_info_layer);
+  text_layer_destroy(s_status_layer);
+
   level_deinitialize();
 
   car_destroy(car_user);
@@ -256,16 +278,23 @@ static void game_deinit() {
   car_opp2 = NULL;
   car_destroy(car_opp3);
   car_opp3 = NULL;
-  car_destroy(car_pace);
-  car_pace = NULL;
 
   s_game_initialized = false;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Game Ended");
+
+  // Destroy all game resources
+  pge_finish();
 }
 
 static void game_init() {
   if (s_game_initialized) {
     game_deinit();
   }
+
+  car_speed = CAR_SPEED_DEFAULT;
+
+  s_game_window = pge_begin(GColorBlack, logic, draw, click);
+  pge_set_framerate(20);
 
   Layer *game_layer = pge_get_canvas();
 
@@ -293,9 +322,6 @@ static void game_init() {
   car_opp3 = car_create((GPoint){.x = 145, .y = 82}, 0,
                         RESOURCE_ID_CAR_PURPLE, RESOURCE_ID_CAR_PURPLE, RESOURCE_ID_CAR_PURPLE);
 
-  car_pace = car_create((GPoint){.x = 120, .y = 34}, 0,
-                        RESOURCE_ID_CAR_WHITE, RESOURCE_ID_CAR_WHITE, RESOURCE_ID_CAR_WHITE);
-
   update_car_angle(car_user, -90);
   update_car_angle(car_opp1, -90);
   update_car_angle(car_opp2, -90);
@@ -315,6 +341,20 @@ static void game_init() {
   car_opp3->pos_x = pos.x;
   car_opp3->pos_y = pos.y;
 
+  car_user->lap = 0; // This will update as soon as car passes finish line on first lap
+  car_opp1->lap = 1;
+  car_opp2->lap = 1;
+  car_opp3->lap = 1;
+
+  s_status_layer = text_layer_create(STATUS_LAYER_RECT);
+  text_layer_set_background_color(s_status_layer, GColorBlack);
+  text_layer_set_text_color(s_status_layer, GColorWhite);
+  text_layer_set_text_alignment(s_status_layer, GTextAlignmentCenter);
+  text_layer_set_text(s_status_layer, s_status_text);
+  update_status_layer();
+  layer_add_child(game_layer, text_layer_get_layer(s_status_layer));
+
+  // Updates position of status layer as well
   update_game_bounds();
 
   s_game_initialized = true;
@@ -338,8 +378,6 @@ static void title_click(int button_id, bool long_click) {
       if (car_speed == 0) {
         car_speed = CAR_SPEED_DEFAULT;
       }
-      // Go to game!
-      window_stack_push(s_game_window, true);
       break;
   }
 }
@@ -347,18 +385,15 @@ static void title_click(int button_id, bool long_click) {
 /******************************** App *****************************************/
 
 static void pebble_sprint_init(void) {
-  s_game_window = pge_begin(GColorBlack, logic, draw, click);
-  pge_set_framerate(20);
-
   pge_title_push("Pebble\nSprint", "SPEED >", "PLAY >", GColorBlack, 0, title_click);
-
+  s_title_pushed = true;
   //pge_set_background(RESOURCE_ID_BG_LEVEL_0);
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window Loaded--");
 }
 
 void pge_init() {
-  srand(time(NULL));
+  //srand(time(NULL));
   car_speed = CAR_SPEED_DEFAULT;
 
   s_game_initialized = false;
@@ -369,8 +404,10 @@ void pge_init() {
 void pge_deinit() {
   game_deinit();
 
-  // Destroy all game resources
-  pge_finish();
+  if (s_title_pushed) {
+    pge_title_pop();
+    s_title_pushed = false;
+  }
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window UnLoaded");
 }
