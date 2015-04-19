@@ -20,6 +20,7 @@
       {  "type": "png",  "name": "FINISH_BOX_1",  "file": "images/finish_box_1.png" },
       {  "type": "png",  "name": "FINISH_BOX_2",  "file": "images/finish_box_2.png" },
       {  "type": "png",  "name": "FINISH_BOX_3",  "file": "images/finish_box_3.png" },
+      {  "type": "png",  "name": "FINISH_BOX_4",  "file": "images/finish_box_4.png" },
       {  "type": "png",  "name": "FINISH_LINE_VERT",  "file": "images/finish_line_vert.png" },
       {  "type": "png",  "name": "HORIZ_ROAD_50",  "file": "images/horiz_road_50.png" },
       {  "type": "png",  "name": "HORIZ_SHRUB_24",  "file": "images/horiz_shrub_24.png" },

@@ -18,6 +18,10 @@
 #define ANGLE_CHANGE 9
 #define TRACKPOINT_RADIUS 5
 
+#define NUM_CARS_TOTAL 4
+
+#define CAR_PLACEMENT_UNSET 0
+
 typedef enum {
   LEVEL_ID0,
 
@@ -41,5 +45,6 @@ typedef struct {
   int track_point_index; // Current index on track that car is gravitating towards
   int lap;               // Current lap number of car
   bool crossing_finish;  // Stores whether crossing finish line or not
+  int placement;
 } Car;
 

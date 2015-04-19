@@ -33,7 +33,13 @@ static GRect s_game_bounds;
 
 static bool s_title_pushed = false;
 
+
+#ifdef DEBUG
+#define NUM_LAPS_DEFAULT 1
+#else
 #define NUM_LAPS_DEFAULT 3
+#endif
+
 static uint8_t s_num_laps = NUM_LAPS_DEFAULT;
 static bool s_crossing_finish_line; // True if overlapping with finish line
 
@@ -64,8 +70,6 @@ typedef enum {
   RACE_STATUS_ALL_FINISHED,
 } RaceStatus;
 static RaceStatus s_race_status = RACE_STATUS_NONE;
-
-static int s_placement = 4; // keeps track of user's current placement
 
 PGESprite* bg_level = NULL;
 
@@ -118,6 +122,10 @@ void car_draw(Car* car_ptr, GContext *ctx) {
 static void update_car_position(Car* car_ptr) {
   // Stop the car movement if current lap > # laps set
   if (car_ptr->lap > s_num_laps) {
+    // Update placement if car passes finish line
+    if (car_ptr->moving) {
+      update_placements(car_ptr);
+    }
     car_ptr->moving = false;
   }
 
@@ -171,6 +179,12 @@ static void update_car_position(Car* car_ptr) {
     pge_sprite_set_position(car_ptr->sprite_black, pos);
     pge_sprite_set_position(car_ptr->sprite_white, pos);
 #endif
+
+    if (car_ptr != car_user) {
+      update_track_point(car_ptr);
+    }
+  } else {
+    set_placement_position(car_ptr);
   }
 }
 
@@ -211,22 +225,23 @@ void update_status_layer() {
     snprintf(s_status_text, sizeof(s_status_text), "Sprint in %d seconds", s_countdown);
   } else if (s_race_status == RACE_STATUS_STARTED) {
     int lap_disp = car_user->lap <= 1 ? 1 : MIN(s_num_laps, car_user->lap); // Don't go past num laps
-    snprintf(s_status_text, sizeof(s_status_text), "Lap: %d", lap_disp);
+    snprintf(s_status_text, sizeof(s_status_text), "Lap: %d of %d", lap_disp, s_num_laps);
   } else if ((s_race_status == RACE_STATUS_USER_FINISHED) || (s_race_status == RACE_STATUS_ALL_FINISHED)) {
-    if (s_placement == 1) {
+    if (car_user->placement == 1) {
       snprintf(s_status_text, sizeof(s_status_text), "1st Place!");
-    } else if (s_placement == 2) {
+    } else if (car_user->placement == 2) {
       snprintf(s_status_text, sizeof(s_status_text), "2nd Place!");
-    } else if (s_placement == 3) {
+    } else if (car_user->placement == 3) {
       snprintf(s_status_text, sizeof(s_status_text), "3rd Place!");
-    } else if (s_placement > 3) {
+    } else if (car_user->placement > 3) {
       snprintf(s_status_text, sizeof(s_status_text), "You Lost :(");
     }
   }
 }
 
 static void update_user_car() {
-  update_car_position(car_user);
+  // Check if user car crossed finish line and update lap
+  update_car_lap(car_user);
 
   // Update user car angle
   if (pge_get_button_state(BUTTON_ID_UP)) {
@@ -239,8 +254,7 @@ static void update_user_car() {
     direction = ROTATION_NONE;
   }
 
-  // Check if user car crossed finish line and update lap
-  update_car_lap(car_user);
+  update_car_position(car_user);
 
   // Update what is visually seen on screen
   update_game_bounds();
@@ -248,14 +262,14 @@ static void update_user_car() {
 
 static void update_opp_cars() {
   //APP_LOG(APP_LOG_LEVEL_DEBUG, "opp: %d %d %d %d", (int)car_opp1->pos_x, (int)car_opp1->pos_y, car_opp1->moving, car_opp1->angle);
-  update_car_position(car_opp1);
-  update_car_position(car_opp2);
-  update_car_position(car_opp3);
-
   // Update oppenent car angles
   update_car_angle_opp(car_opp1);
   update_car_angle_opp(car_opp2);
   update_car_angle_opp(car_opp3);
+
+  update_car_position(car_opp1);
+  update_car_position(car_opp2);
+  update_car_position(car_opp3);
 }
 
 static void update_countdown(void *context) {
@@ -282,9 +296,6 @@ static void logic() {
     car_opp3->moving = true;
     s_race_status = RACE_STATUS_STARTED;
   } else if (s_race_status == RACE_STATUS_STARTED) {
-    update_user_car();
-    update_opp_cars();
-
     // Update race status based on whether users and all cars have finished the race
     if ((car_opp1->lap > s_num_laps) && (car_opp2->lap > s_num_laps) &&
         (car_opp3->lap > s_num_laps) && (car_user->lap > s_num_laps)) {
@@ -294,7 +305,17 @@ static void logic() {
       s_race_status = RACE_STATUS_USER_FINISHED;
     }
   } else if (s_race_status == RACE_STATUS_USER_FINISHED) {
+    if ((car_opp1->lap > s_num_laps) && (car_opp2->lap > s_num_laps) &&
+        (car_opp3->lap > s_num_laps) && (car_user->lap > s_num_laps)) {
+      s_race_status = RACE_STATUS_ALL_FINISHED;
+      update_signal(COUNTDOWN_MAX);
+    }
+  }
+
+  if ((s_race_status != RACE_STATUS_COUNTDOWN) && 
+      (s_race_status != RACE_STATUS_NONE)) {
     update_opp_cars();
+    update_user_car();
   }
 
   update_status_layer();
@@ -323,7 +344,12 @@ static void click(int button_id, bool long_click) {
       break;
 
     case BUTTON_ID_SELECT:
-      s_race_status = RACE_STATUS_COUNTDOWN;
+      if (s_race_status == RACE_STATUS_NONE) {
+        s_race_status = RACE_STATUS_COUNTDOWN;
+      }
+#ifdef DEBUG
+      car_user->moving = !car_user->moving;
+#endif
       break;
 
     case BUTTON_ID_DOWN:

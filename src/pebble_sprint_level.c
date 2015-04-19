@@ -46,11 +46,16 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
     current_level->finish_group->finish_box_1.sprite = pge_sprite_create(current_level->finish_group->finish_box_1.offset, current_level->finish_group->finish_box_1.resource_id);
     current_level->finish_group->finish_box_2.sprite = pge_sprite_create(current_level->finish_group->finish_box_2.offset, current_level->finish_group->finish_box_2.resource_id);
     current_level->finish_group->finish_box_3.sprite = pge_sprite_create(current_level->finish_group->finish_box_3.offset, current_level->finish_group->finish_box_3.resource_id);
+    current_level->finish_group->finish_box_4.sprite = pge_sprite_create(current_level->finish_group->finish_box_4.offset, current_level->finish_group->finish_box_4.resource_id);
     current_level->finish_group->light_signal.sprite = pge_sprite_create(current_level->finish_group->light_signal.offset, current_level->finish_group->light_signal.resource_id);
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Level %d initialized", level);
   } else {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid level %d. Could not initialize", level);
+  }
+
+  for (int pos = 0; pos < NUM_CARS_TOTAL; pos++) {
+    current_level->finish_order[pos] = NULL;
   }
 }
 
@@ -73,6 +78,7 @@ void level_deinitialize() {
     pge_sprite_destroy(current_level->finish_group->finish_box_1.sprite);
     pge_sprite_destroy(current_level->finish_group->finish_box_2.sprite);
     pge_sprite_destroy(current_level->finish_group->finish_box_3.sprite);
+    pge_sprite_destroy(current_level->finish_group->finish_box_4.sprite);
     pge_sprite_destroy(current_level->finish_group->light_signal.sprite);
   }
 
@@ -156,6 +162,10 @@ void level_draw(GContext *ctx, GRect game_bounds) {
     sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_3.sprite);
     if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
       pge_sprite_draw(current_level->finish_group->finish_box_3.sprite, ctx);
+    }
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_4.sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->finish_group->finish_box_4.sprite, ctx);
     }
     sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->light_signal.sprite);
     if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
@@ -256,6 +266,59 @@ uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent) {
   return allowable_directions;
 }
 
+void set_placement_position(Car *car_ptr) {
+  int placement = car_ptr->placement;
+  if (placement == CAR_PLACEMENT_UNSET) {
+    return;
+  }
+
+  // Move car to finish box
+  PGESprite *finish_box = NULL;
+  if (placement == 1) {
+    finish_box = current_level->finish_group->finish_box_1.sprite;
+  } else if (placement == 2) {
+    finish_box = current_level->finish_group->finish_box_2.sprite;
+  } else if (placement == 3) {
+    finish_box = current_level->finish_group->finish_box_3.sprite;
+  } else if (placement == 4) {
+    finish_box = current_level->finish_group->finish_box_4.sprite;
+  } else {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "ERROR: update_placement - Should not reach here\n");
+    return; // Should never reach here
+  }
+
+  // Get position of finish box and center car within it
+  GPoint finish_box_pos = pge_sprite_get_position(finish_box);
+  GRect finish_box_bounds = pge_sprite_get_bounds(finish_box);
+  GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
+  int x_offset = (finish_box_bounds.size.w - car_bounds.size.w) / 2;
+  int y_offset = (finish_box_bounds.size.h - car_bounds.size.h) / 2;
+  finish_box_pos.x += x_offset;
+  finish_box_pos.y += y_offset;
+
+  // Update car to be in the correct position
+  car_ptr->prev_angle = 0;
+  car_ptr->angle = 0;
+  pge_sprite_set_rotation(car_ptr->sprite_color, car_ptr->angle);
+
+  car_ptr->pos_x = finish_box_pos.x;
+  car_ptr->pos_y = finish_box_pos.y;
+
+  pge_sprite_set_position(car_ptr->sprite_color, finish_box_pos);
+}
+
+// Only call this when crossing finish line
+void update_placements(Car *car_ptr) {
+  for (int pos = 0; pos < NUM_CARS_TOTAL; pos++) {
+    // Find next available position slot
+    if (current_level->finish_order[pos] == NULL) {
+      current_level->finish_order[pos] = car_ptr;
+      car_ptr->placement = pos + 1;
+      break;
+    }
+  }
+}
+
 void update_car_angle_opp(Car* car_ptr) {
   if (!car_ptr->moving) {
     return;
@@ -266,6 +329,33 @@ void update_car_angle_opp(Car* car_ptr) {
   GPoint car_origin = pge_sprite_get_position(car_ptr->sprite_color);
   GPoint car_center = GPoint(car_origin.x + (car_bounds.size.w / 2), 
                              car_origin.y + (car_bounds.size.h / 2));
+
+  // Determine angle between car center point and current track pointer index
+  int track_point_index = car_ptr->track_point_index;
+  GPoint current_track_point = current_level->track_points0[track_point_index];
+  int16_t dx = car_center.x - current_track_point.x;
+  int16_t dy = car_center.y - current_track_point.y;
+  int angle = ((360 * atan2_lookup(dy, dx)) / TRIG_MAX_ANGLE) - 90; // subtract 90 to get correct angle
+//  APP_LOG(APP_LOG_LEVEL_DEBUG, "angle: %d", angle);
+
+#if 0 // TODO: Causes cars to go wild
+  // Update the current angle of the car by a maximum amount
+  if ((angle > car_ptr->angle) && ((angle - car_ptr->angle) > OPP_ANGLE_CHANGE)) {
+    car_ptr->angle += OPP_ANGLE_CHANGE;
+  } else if ((angle < car_ptr->angle) && ((car_ptr->angle - angle) > OPP_ANGLE_CHANGE)) {
+    car_ptr->angle -= OPP_ANGLE_CHANGE;
+  } else {
+  }
+#endif
+  car_ptr->angle = angle;
+    
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "--opp: %d %d %d", dx, dy, car_ptr->angle);
+  
+  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
+}
+
+void update_track_point(Car *car_ptr) {
+  GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
 
   // Get car's current track point index
   int track_point_index = car_ptr->track_point_index;
@@ -286,27 +376,6 @@ void update_car_angle_opp(Car* car_ptr) {
     car_ptr->track_point_index = track_point_index;
     current_track_point = current_level->track_points0[track_point_index];
   }
-
-  // Determine angle between car center point and current track pointer index
-  int16_t dx = car_center.x - current_track_point.x;
-  int16_t dy = car_center.y - current_track_point.y;
-  int angle = ((360 * atan2_lookup(dy, dx)) / TRIG_MAX_ANGLE) - 90; // subtract 90 to get correct angle
-//  APP_LOG(APP_LOG_LEVEL_DEBUG, "angle: %d", angle);
-
-#if 0 // TODO: Causes cars to go wild
-  // Update the current angle of the car by a maximum amount
-  if ((angle > car_ptr->angle) && ((angle - car_ptr->angle) > OPP_ANGLE_CHANGE)) {
-    car_ptr->angle += OPP_ANGLE_CHANGE;
-  } else if ((angle < car_ptr->angle) && ((car_ptr->angle - angle) > OPP_ANGLE_CHANGE)) {
-    car_ptr->angle -= OPP_ANGLE_CHANGE;
-  } else {
-  }
-#endif
-  car_ptr->angle = angle;
-    
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "--opp: %d %d %d", dx, dy, car_ptr->angle);
-  
-  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 }
 
 static bool crossing_finish_line(Car *car_ptr) {

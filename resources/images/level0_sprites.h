@@ -58,6 +58,7 @@ static LevelSpriteLocation level0_sprites[] = {
   { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
   { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
   { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_4, {175, 30}, NULL },
   { RESOURCE_ID_LIGHT_SIGNAL_ALL, {105, 30}, NULL },
 };
 
@@ -98,6 +99,7 @@ static LevelFinishLine level0_finish_group = {
   { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
   { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
   { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_4, {175, 30}, NULL },
   { RESOURCE_ID_LIGHT_SIGNAL_ALL, {105, 30}, NULL },
 };
 

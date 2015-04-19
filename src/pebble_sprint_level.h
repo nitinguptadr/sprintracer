@@ -16,6 +16,7 @@ typedef struct {
   LevelSpriteLocation finish_box_1;
   LevelSpriteLocation finish_box_2;
   LevelSpriteLocation finish_box_3;
+  LevelSpriteLocation finish_box_4;
   LevelSpriteLocation light_signal;
 } LevelFinishLine;
 
@@ -28,6 +29,7 @@ typedef struct {
   LevelSpriteLocation *tracks;
   LevelFinishLine *finish_group;
   GPoint *track_points0;
+  Car *finish_order[NUM_CARS_TOTAL];
 } LevelSpriteDetails;
 
 // Intializes current level
@@ -43,7 +45,13 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds);
 
 uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent);
 
+void set_placement_position(Car *car_ptr);
+
+void update_placements(Car *car_ptr);
+
 void update_car_angle_opp(Car* car_ptr);
+
+void update_track_point(Car *car_ptr);
 
 void update_car_lap(Car *car_ptr);
 
