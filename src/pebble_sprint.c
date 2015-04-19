@@ -449,6 +449,11 @@ static void game_init() {
   car_opp2->lap = 1;
   car_opp3->lap = 1;
 
+  car_user->track_point_offset = 0; // Does not apply anyways
+  car_opp1->track_point_offset = -5;
+  car_opp2->track_point_offset = 0;
+  car_opp3->track_point_offset = 5;
+
   s_status_layer = text_layer_create(STATUS_LAYER_RECT);
   text_layer_set_background_color(s_status_layer, GColorBlack);
   text_layer_set_text_color(s_status_layer, GColorWhite);

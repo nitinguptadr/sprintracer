@@ -3,7 +3,7 @@ Logic:
 --Logic to handle placement - 1st, 2nd, 3rd
 --Put cars in finish boxes after done racing
 --Add countdown logic/timer before start of race
-Update computer logic of other cars to be +/- track points
+--Update computer logic of other cars to be +/- track points
 Weapons on user car
 Weapons on opponent car
 Oil slick spots show up randomly

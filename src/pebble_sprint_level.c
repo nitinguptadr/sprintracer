@@ -333,6 +333,11 @@ void update_car_angle_opp(Car* car_ptr) {
   // Determine angle between car center point and current track pointer index
   int track_point_index = car_ptr->track_point_index;
   GPoint current_track_point = current_level->track_points0[track_point_index];
+  int track_point_offset = (track_point_index == (int)current_num_track_points0 - 1) ? 
+                           0 : car_ptr->track_point_offset;
+  current_track_point.x += track_point_offset;
+  current_track_point.y += track_point_offset;
+
   int16_t dx = car_center.x - current_track_point.x;
   int16_t dy = car_center.y - current_track_point.y;
   int angle = ((360 * atan2_lookup(dy, dx)) / TRIG_MAX_ANGLE) - 90; // subtract 90 to get correct angle
@@ -359,12 +364,14 @@ void update_track_point(Car *car_ptr) {
 
   // Get car's current track point index
   int track_point_index = car_ptr->track_point_index;
+  int track_point_offset = (track_point_index == (int)current_num_track_points0 - 1) ? 
+                           0 : car_ptr->track_point_offset;
   GPoint current_track_point = current_level->track_points0[track_point_index];
 
   // If car overlaps current track pointer index, update to next track point index
   // Create a rectangle with current point as center
-  GRect current_rect = GRect(current_track_point.x - TRACKPOINT_RADIUS,
-                             current_track_point.y - TRACKPOINT_RADIUS,
+  GRect current_rect = GRect(current_track_point.x - TRACKPOINT_RADIUS + track_point_offset,
+                             current_track_point.y - TRACKPOINT_RADIUS + track_point_offset,
                              2 * TRACKPOINT_RADIUS,
                              2 * TRACKPOINT_RADIUS);
   if (pge_collision_rectangle_rectangle(&current_rect, &car_bounds)) {
