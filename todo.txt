@@ -4,16 +4,18 @@ Logic:
 --Put cars in finish boxes after done racing
 --Add countdown logic/timer before start of race
 --Update computer logic of other cars to be +/- track points
+add checkpoint logic for user to pass to finish level (based on overlap and order of specific track section)
 Weapons on user car
 Weapons on opponent car
 Oil slick spots show up randomly
 level selector
-add checkpoint logic for user to pass to finish level (based on overlap and order of specific track section)
+add speed boosts on the road
+Refresh title screen
 
 Settings:
 --------
-difficulty setting??
-controls settings
+difficulty setting?? -- slower on grass
+controls settings window and logic
 
 Status Bar:
 ----------
@@ -32,4 +34,5 @@ Squeeze track
 Open/close gate
 Fire animation of exploding car
 checkpoint track
+speed boost
 

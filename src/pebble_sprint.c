@@ -413,16 +413,16 @@ static void game_init() {
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Creating Cars");
 
-  car_user = car_create((GPoint){.x = 120, .y = 60}, 0,
+  car_opp1 = car_create((GPoint){.x = 120, .y = 60}, 0,
                         RESOURCE_ID_CAR_RED, RESOURCE_ID_CAR_RED, RESOURCE_ID_CAR_RED);
 
-  car_opp1 = car_create((GPoint){.x = 145, .y = 60}, 0,
+  car_user = car_create((GPoint){.x = 145, .y = 60}, 0,
                         RESOURCE_ID_CAR_BLUE, RESOURCE_ID_CAR_BLUE, RESOURCE_ID_CAR_BLUE);
 
-  car_opp2 = car_create((GPoint){.x = 120, .y = 82}, 0,
+  car_opp3 = car_create((GPoint){.x = 120, .y = 82}, 0,
                         RESOURCE_ID_CAR_ORANGE, RESOURCE_ID_CAR_ORANGE, RESOURCE_ID_CAR_ORANGE);
 
-  car_opp3 = car_create((GPoint){.x = 145, .y = 82}, 0,
+  car_opp2 = car_create((GPoint){.x = 145, .y = 82}, 0,
                         RESOURCE_ID_CAR_PURPLE, RESOURCE_ID_CAR_PURPLE, RESOURCE_ID_CAR_PURPLE);
 
   update_car_angle(car_user, -90);
