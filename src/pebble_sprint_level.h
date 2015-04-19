@@ -16,9 +16,6 @@ typedef struct {
   LevelSpriteLocation finish_box_1;
   LevelSpriteLocation finish_box_2;
   LevelSpriteLocation finish_box_3;
-  LevelSpriteLocation light_signal_red;
-  LevelSpriteLocation light_signal_yellow;
-  LevelSpriteLocation light_signal_green;
   LevelSpriteLocation light_signal;
 } LevelFinishLine;
 
@@ -49,3 +46,6 @@ uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent);
 void update_car_angle_opp(Car* car_ptr);
 
 void update_car_lap(Car *car_ptr);
+
+void update_signal(int countdown);
+

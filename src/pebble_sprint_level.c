@@ -47,9 +47,6 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
     current_level->finish_group->finish_box_2.sprite = pge_sprite_create(current_level->finish_group->finish_box_2.offset, current_level->finish_group->finish_box_2.resource_id);
     current_level->finish_group->finish_box_3.sprite = pge_sprite_create(current_level->finish_group->finish_box_3.offset, current_level->finish_group->finish_box_3.resource_id);
     current_level->finish_group->light_signal.sprite = pge_sprite_create(current_level->finish_group->light_signal.offset, current_level->finish_group->light_signal.resource_id);
-    current_level->finish_group->light_signal_red.sprite = pge_sprite_create(current_level->finish_group->light_signal_red.offset, current_level->finish_group->light_signal_red.resource_id);
-    current_level->finish_group->light_signal_yellow.sprite = pge_sprite_create(current_level->finish_group->light_signal_yellow.offset, current_level->finish_group->light_signal_yellow.resource_id);
-    current_level->finish_group->light_signal_green.sprite = pge_sprite_create(current_level->finish_group->light_signal_green.offset, current_level->finish_group->light_signal_green.resource_id);
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Level %d initialized", level);
   } else {
@@ -77,9 +74,6 @@ void level_deinitialize() {
     pge_sprite_destroy(current_level->finish_group->finish_box_2.sprite);
     pge_sprite_destroy(current_level->finish_group->finish_box_3.sprite);
     pge_sprite_destroy(current_level->finish_group->light_signal.sprite);
-    pge_sprite_destroy(current_level->finish_group->light_signal_red.sprite);
-    pge_sprite_destroy(current_level->finish_group->light_signal_yellow.sprite);
-    pge_sprite_destroy(current_level->finish_group->light_signal_green.sprite);
   }
 
   current_level = NULL;
@@ -329,3 +323,16 @@ void update_car_lap(Car *car_ptr) {
   car_ptr->crossing_finish = current_state;
 }
 
+void update_signal(int countdown) {
+  if (countdown == 3) {
+    pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_NONE);
+  } else if (countdown == 2) {
+    pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_RED);
+  } else if (countdown == 1) {
+    pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_YELLOW);
+  } else if (countdown == 0) {
+    pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_GREEN);
+  } else {
+    pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_ALL);
+  }
+}
