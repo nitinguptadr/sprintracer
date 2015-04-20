@@ -20,6 +20,8 @@
 
 #define NUM_CARS_TOTAL 4
 
+#define NUM_CAR_RESOURCES (RESOURCE_ID_CAR_WHITE - RESOURCE_ID_CAR_RED + 1)
+
 #define CAR_PLACEMENT_UNSET 0
 
 typedef enum {

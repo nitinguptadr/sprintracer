@@ -10,9 +10,7 @@ static BitmapLayer *s_bitmap_layer;
 // State
 static char s_level_buffer[TITLE_LENGTH_MAX];
 
-extern void game_init();
-extern void game_deinit();
-void level_selector_window_pop();
+static void level_selector_window_pop();
 
 static void update_level_image(LevelNumId current_level) {
   int resource_id = RESOURCE_ID_LEVEL_0;
@@ -49,10 +47,11 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   layer_mark_dirty(text_layer_get_layer(s_level_selector_layer));
 }
 
+extern void car_selector_window_push();
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   level_selector_window_pop();
   level_set_current(LEVEL_ID0);
-  game_init();
+  car_selector_window_push();
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -113,6 +112,7 @@ static void window_unload(Window *window) {
 }
 
 /********************************* Public *************************************/
+extern void  game_deinit();
 
 void level_selector_window_push() {
   game_deinit();
