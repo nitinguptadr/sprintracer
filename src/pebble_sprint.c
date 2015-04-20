@@ -5,6 +5,7 @@
 
 #include "pebble_sprint_common.h"
 #include "pebble_sprint_level.h"
+#include "pebble_sprint_title.h"
 
 #include "pge/pge.h"
 #include "pge/additional/pge_sprite.h"
@@ -278,8 +279,6 @@ static void update_countdown(void *context) {
   s_countdown--;
   if (s_countdown > 0) {
     s_countdown_timer = app_timer_register(1000, update_countdown, NULL);
-  } else {
-    s_countdown_timer = NULL;
   }
   update_signal(s_countdown);
 }
@@ -365,7 +364,11 @@ static void click(int button_id, bool long_click) {
 
 /******************************** Title ***************************************/
 
-static void game_deinit() {
+void game_deinit() {
+  if (!s_game_initialized) {
+    return;
+  }
+
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Ending Game...");
   text_layer_destroy(s_game_info_layer);
   text_layer_destroy(s_status_layer);
@@ -383,6 +386,7 @@ static void game_deinit() {
 
   if (!s_countdown_timer) {
     app_timer_cancel(s_countdown_timer);
+    s_countdown_timer = NULL;
   }
 
   s_race_status = RACE_STATUS_NONE;
@@ -393,11 +397,9 @@ static void game_deinit() {
   pge_finish();
 }
 
-static void game_init() {
-  if (s_game_initialized) {
-    game_deinit();
-  }
-
+void game_init() {
+  game_deinit();
+  
   car_speed = CAR_SPEED_DEFAULT;
 
   s_game_window = pge_begin(GColorBlack, logic, draw, click);
@@ -471,27 +473,26 @@ static void game_init() {
   s_countdown_timer = NULL;
   s_countdown = 3;
 
+  if (car_speed == 0) {
+    car_speed = CAR_SPEED_DEFAULT;
+  }
+
   s_game_initialized = true;
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Game initialized");
 
 }
 
+/******************************** Title Window *****************************************/
+extern void level_selector_window_push();
+
 static void title_click(int button_id, bool long_click) {
   switch(button_id) {
-    // Some other action
-    case BUTTON_ID_SELECT:
-      car_speed = (car_speed + 0.5);
-      if (car_speed > CAR_SPEED_MAX) {
-        car_speed = 0.5;
-      }
-      break; 
+    case BUTTON_ID_UP:
+      level_selector_window_push();
+      break;
 
     case BUTTON_ID_DOWN:
-      game_init();
-      if (car_speed == 0) {
-        car_speed = CAR_SPEED_DEFAULT;
-      }
       break;
   }
 }
@@ -499,7 +500,8 @@ static void title_click(int button_id, bool long_click) {
 /******************************** App *****************************************/
 
 static void pebble_sprint_init(void) {
-  pge_title_push("Pebble\nSprint", "SPEED >", "PLAY >", GColorBlack, 0, title_click);
+  //pge_title_push("Pebble\nSprint", "SPEED >", "PLAY >", GColorBlack, 0, title_click);
+  title_push(0, title_click);
   s_title_pushed = true;
   //pge_set_background(RESOURCE_ID_BG_LEVEL_0);
 
@@ -519,7 +521,7 @@ void pge_deinit() {
   game_deinit();
 
   if (s_title_pushed) {
-    pge_title_pop();
+    title_pop();
     s_title_pushed = false;
   }
 

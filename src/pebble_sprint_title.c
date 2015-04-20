@@ -1,4 +1,4 @@
-#include "pge_title.h"
+#include "pebble_sprint_title.h"
 
 // UI
 static Window *s_window;
@@ -11,15 +11,15 @@ static PGEClickHandler *s_click_handler;
 // State
 static int s_background_res_id;
 static GColor s_title_color;
-static char s_title_buffer[PGE_TITLE_LENGTH_MAX], s_select_buffer[PGE_TITLE_ACTION_MAX], s_down_buffer[PGE_TITLE_ACTION_MAX];
-static bool s_light_on;
+static char s_title_buffer[TITLE_LENGTH_MAX];
+static char s_up_buffer[TITLE_ACTION_MAX];
+static char s_select_buffer[TITLE_ACTION_MAX];
+static char s_down_buffer[TITLE_ACTION_MAX];
 
 /*********************************** Clicks ***********************************/
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  // Toggle light
-  s_light_on = !s_light_on;
-  light_enable(s_light_on);
+  s_click_handler(BUTTON_ID_UP, false);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -69,7 +69,7 @@ static void window_load(Window *window) {
   text_layer_set_background_color(s_up_layer, GColorClear);
   text_layer_set_text_alignment(s_up_layer, GTextAlignmentRight);
   text_layer_set_font(s_up_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_text(s_up_layer, "LIGHT >");
+  text_layer_set_text(s_up_layer, s_up_buffer);
   layer_add_child(window_layer, text_layer_get_layer(s_up_layer));
 
   // SELECT TextLayer
@@ -106,13 +106,14 @@ static void window_unload(Window *window) {
 
 /********************************* Public *************************************/
 
-void pge_title_push(char *title, char *select_action, char *down_action, GColor title_color, int background_res_id, PGEClickHandler *click_handler) {
+void title_push(int background_res_id, PGEClickHandler *click_handler) {
   // Store values
+  s_title_color = GColorBlack;
   s_background_res_id = background_res_id;
-  s_title_color = title_color;
-  snprintf(s_title_buffer, sizeof(s_title_buffer), "%s", title);
-  snprintf(s_select_buffer, sizeof(s_select_buffer), "%s", select_action);
-  snprintf(s_down_buffer, sizeof(s_down_buffer), "%s", down_action);
+  snprintf(s_title_buffer, sizeof(s_title_buffer), "%s", "Pebble Sprint");
+  snprintf(s_up_buffer, sizeof(s_up_buffer), "%s", "Single Race");
+  snprintf(s_select_buffer, sizeof(s_select_buffer), "%s", "Tournament");
+  snprintf(s_down_buffer, sizeof(s_down_buffer), "%s", "Settings");
 
   s_click_handler = click_handler;
 
@@ -129,20 +130,9 @@ void pge_title_push(char *title, char *select_action, char *down_action, GColor 
   window_stack_push(s_window, true);
 }
 
-void pge_title_pop() {
+void title_pop() {
   // Should self-destroy
   window_stack_pop(true);
   s_window = NULL;
 }
 
-void pge_title_set_highscore(int new_highscore) {
-  persist_write_int(PGE_TITLE_HIGHSCORE_PS_KEY, new_highscore);
-}
-
-int pge_title_get_highscore() {
-  if(persist_exists(PGE_TITLE_HIGHSCORE_PS_KEY)) {
-    return persist_read_int(PGE_TITLE_HIGHSCORE_PS_KEY);
-  } else {
-    return 0;
-  }
-}

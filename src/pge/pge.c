@@ -64,6 +64,7 @@ void pge_finish() {
 
   // Finally
   window_destroy(s_game_window);
+  s_game_window = NULL;
 }
 
 bool pge_get_button_state(ButtonId button) {

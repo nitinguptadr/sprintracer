@@ -39,6 +39,10 @@ void level_initialize(Layer *game_layer, uint8_t level);
 // Deintializes current level
 void level_deinitialize();
 
+void level_set_current(LevelNumId level);
+
+LevelNumId level_get_current();
+
 // Draw the current level
 void level_draw(GContext *ctx, GRect game_bounds);
 

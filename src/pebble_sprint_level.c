@@ -5,6 +5,7 @@
 #include "pge/additional/pge_collision.h"
 #include "resources/images/level0_sprites.h"
 
+static LevelNumId s_current_level = 0;
 static LevelSpriteDetails *current_level = NULL;
 static uint32_t current_num_scenery = 0;
 static uint32_t current_num_sprites = 0;
@@ -92,6 +93,14 @@ void level_deinitialize() {
   }
 
   current_level = NULL;
+}
+
+void level_set_current(LevelNumId level) {
+  s_current_level = level;
+}
+
+LevelNumId level_get_current() {
+  return s_current_level;
 }
 
 static bool grect_overlaps_grect(GRect rect1, GRect rect2) {
@@ -435,3 +444,5 @@ void update_signal(int countdown) {
     pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_ALL);
   }
 }
+
+

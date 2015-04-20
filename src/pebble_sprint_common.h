@@ -24,6 +24,8 @@
 
 typedef enum {
   LEVEL_ID0,
+  LEVEL_ID1,
+  LEVEL_ID2,
 
   // Add new levels above this
   LEVEL_COUNT,

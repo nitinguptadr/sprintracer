@@ -40,14 +40,14 @@
       {  "type": "png",  "name": "VERT_TREE_35",  "file": "images/vert_tree_35.png" },
       {  "type": "png",  "name": "VERT_WALL_168",  "file": "images/vert_wall_168.png" },
       {  "type": "png",  "name": "VERT_WATER_24",  "file": "images/vert_water_24.png" },
-      {  "type": "png",  "name": "BG_LEVEL_0",  "file": "images/level0_small.png"},
       {  "type": "png",  "name": "CAR_RED",  "file": "images/car_red.png"},
       {  "type": "png",  "name": "CAR_YELLOW",  "file": "images/car_yellow.png"},
       {  "type": "png",  "name": "CAR_ORANGE",  "file": "images/car_orange.png"},
       {  "type": "png",  "name": "CAR_GREEN",  "file": "images/car_green.png"},
       {  "type": "png",  "name": "CAR_BLUE",  "file": "images/car_blue.png"},
       {  "type": "png",  "name": "CAR_PURPLE",  "file": "images/car_purple.png"},
-      {  "type": "png",  "name": "CAR_WHITE",  "file": "images/car_white.png"}
+      {  "type": "png",  "name": "CAR_WHITE",  "file": "images/car_white.png"},
+      {  "type": "png",  "name": "LEVEL_0",  "file": "images/level0_small.png"}
     ]
   },
   "targetPlatforms": [
