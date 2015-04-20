@@ -42,10 +42,11 @@ typedef struct {
   int32_t y_change;
   float pos_x;
   float pos_y;
-  int track_point_index; // Current index on track that car is gravitating towards
-  int track_point_offset;  // Number of pixels to offset from each track point
-  int lap;               // Current lap number of car
-  bool crossing_finish;  // Stores whether crossing finish line or not
-  int placement;
+  unsigned int track_point_index; // Current index on track that car is gravitating towards
+  int track_point_offset;         // Number of pixels to offset from each track point
+  unsigned int lap;               // Current lap number of car
+  bool crossing_finish;           // Stores whether crossing finish line or not
+  unsigned int placement;
+  unsigned int current_checkpoint;
 } Car;
 

@@ -11,6 +11,7 @@ static uint32_t current_num_sprites = 0;
 static uint32_t current_num_walls = 0;
 static uint32_t current_num_tracks = 0;
 static uint32_t current_num_track_points0 = 0;
+static uint32_t current_num_checkpoints = 0;
 
 void level_initialize(Layer *game_layer, LevelNumId level) {
   switch(level) {
@@ -21,6 +22,7 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_num_sprites = sizeof(level0_sprites) / sizeof(LevelSpriteLocation);
       current_num_walls = sizeof(level0_walls) / sizeof(LevelSpriteLocation);
       current_num_tracks = sizeof(level0_tracks) / sizeof(LevelSpriteLocation);
+      current_num_checkpoints = sizeof(level0_checkpoints) / sizeof(LevelSpriteLocation);
       current_num_track_points0 = sizeof(level0_track_points0) / sizeof(GPoint);
       break;
     default:
@@ -28,6 +30,7 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
   }
 
   if (current_level) {
+    // Initialize sprites for all elements
     for (uint32_t index = 0; index < current_num_scenery; index++) {
       current_level->scenery[index].sprite = pge_sprite_create(current_level->scenery[index].offset, current_level->scenery[index].resource_id);
     }
@@ -39,6 +42,9 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
     }
     for (uint32_t index = 0; index < current_num_tracks; index++) {
       current_level->tracks[index].sprite = pge_sprite_create(current_level->tracks[index].offset, current_level->tracks[index].resource_id);
+    }
+    for (uint32_t index = 0; index < current_num_checkpoints; index++) {
+      current_level->checkpoints[index].sprite = pge_sprite_create(current_level->checkpoints[index].offset, current_level->checkpoints[index].resource_id);
     }
 
     // Create finish group items
@@ -72,6 +78,9 @@ void level_deinitialize() {
     }
     for (uint32_t index = 0; index < current_num_tracks; index++) {
       pge_sprite_destroy(current_level->tracks[index].sprite);
+    }
+    for (uint32_t index = 0; index < current_num_checkpoints; index++) {
+      pge_sprite_destroy(current_level->checkpoints[index].sprite);
     }
 
     pge_sprite_destroy(current_level->finish_group->finish_line.sprite);
@@ -266,6 +275,18 @@ uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent) {
   return allowable_directions;
 }
 
+void update_checkpoints(Car *car_ptr) {
+  if (car_ptr->current_checkpoint >= current_num_checkpoints) {
+    return;
+  }
+
+  GRect current_checkpoint_bounds = pge_sprite_get_bounds(current_level->checkpoints[car_ptr->current_checkpoint].sprite);
+  GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
+  if (pge_collision_rectangle_rectangle(&current_checkpoint_bounds, &car_bounds)) {
+    car_ptr->current_checkpoint++;
+  }
+}
+
 void set_placement_position(Car *car_ptr) {
   int placement = car_ptr->placement;
   if (placement == CAR_PLACEMENT_UNSET) {
@@ -331,9 +352,9 @@ void update_car_angle_opp(Car* car_ptr) {
                              car_origin.y + (car_bounds.size.h / 2));
 
   // Determine angle between car center point and current track pointer index
-  int track_point_index = car_ptr->track_point_index;
+  unsigned int track_point_index = car_ptr->track_point_index;
   GPoint current_track_point = current_level->track_points0[track_point_index];
-  int track_point_offset = (track_point_index == (int)current_num_track_points0 - 1) ? 
+  int track_point_offset = (track_point_index == current_num_track_points0 - 1) ? 
                            0 : car_ptr->track_point_offset;
   current_track_point.x += track_point_offset;
   current_track_point.y += track_point_offset;
@@ -363,8 +384,8 @@ void update_track_point(Car *car_ptr) {
   GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
 
   // Get car's current track point index
-  int track_point_index = car_ptr->track_point_index;
-  int track_point_offset = (track_point_index == (int)current_num_track_points0 - 1) ? 
+  unsigned int track_point_index = car_ptr->track_point_index;
+  int track_point_offset = (track_point_index == current_num_track_points0 - 1) ? 
                            0 : car_ptr->track_point_offset;
   GPoint current_track_point = current_level->track_points0[track_point_index];
 
@@ -391,10 +412,12 @@ static bool crossing_finish_line(Car *car_ptr) {
   return pge_collision_rectangle_rectangle(&car_bounds, &finish_line_rect);
 }
 
-void update_car_lap(Car *car_ptr) {
+void update_user_lap(Car *car_ptr) {
   bool current_state = crossing_finish_line(car_ptr);
-  if ((current_state != car_ptr->crossing_finish) && (car_ptr->crossing_finish == false)) {
+  if ((current_state != car_ptr->crossing_finish) && (car_ptr->crossing_finish == false) &&
+      (car_ptr->current_checkpoint >= current_num_checkpoints)) {
     car_ptr->lap++;
+    car_ptr->current_checkpoint = 0; // Reset checkpoints for next lap
   }
   car_ptr->crossing_finish = current_state;
 }

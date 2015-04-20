@@ -40,8 +40,7 @@ static bool s_title_pushed = false;
 #define NUM_LAPS_DEFAULT 3
 #endif
 
-static uint8_t s_num_laps = NUM_LAPS_DEFAULT;
-static bool s_crossing_finish_line; // True if overlapping with finish line
+static unsigned int s_num_laps = NUM_LAPS_DEFAULT;
 
 #define STATUS_LAYER_HEIGHT 16
 #define STATUS_LAYER_RECT GRect(0, SCREEN_RES_ROWS - STATUS_LAYER_HEIGHT, SCREEN_RES_COLS, STATUS_LAYER_HEIGHT)
@@ -224,7 +223,7 @@ void update_status_layer() {
   } else if (s_race_status == RACE_STATUS_COUNTDOWN) {
     snprintf(s_status_text, sizeof(s_status_text), "Sprint in %d seconds", s_countdown);
   } else if (s_race_status == RACE_STATUS_STARTED) {
-    int lap_disp = car_user->lap <= 1 ? 1 : MIN(s_num_laps, car_user->lap); // Don't go past num laps
+    int lap_disp = MIN(s_num_laps, car_user->lap); // Don't go past num laps
     snprintf(s_status_text, sizeof(s_status_text), "Lap: %d of %d", lap_disp, s_num_laps);
   } else if ((s_race_status == RACE_STATUS_USER_FINISHED) || (s_race_status == RACE_STATUS_ALL_FINISHED)) {
     if (car_user->placement == 1) {
@@ -240,8 +239,11 @@ void update_status_layer() {
 }
 
 static void update_user_car() {
+  // Check if crossed checkpoint
+  update_checkpoints(car_user);
+
   // Check if user car crossed finish line and update lap
-  update_car_lap(car_user);
+  update_user_lap(car_user);
 
   // Update user car angle
   if (pge_get_button_state(BUTTON_ID_UP)) {
@@ -444,7 +446,7 @@ static void game_init() {
   car_opp3->pos_x = pos.x;
   car_opp3->pos_y = pos.y;
 
-  car_user->lap = 0; // This will update as soon as car passes finish line on first lap
+  car_user->lap = 1;
   car_opp1->lap = 1;
   car_opp2->lap = 1;
   car_opp3->lap = 1;

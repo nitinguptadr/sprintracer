@@ -62,17 +62,6 @@ static LevelSpriteLocation level0_sprites[] = {
   { RESOURCE_ID_LIGHT_SIGNAL_ALL, {105, 30}, NULL },
 };
 
-static LevelSpriteLocation level0_walls[] = {
-  { RESOURCE_ID_HORIZ_WALL_144, {0, 0}, NULL },
-  { RESOURCE_ID_HORIZ_WALL_144, {144, 0}, NULL },
-  { RESOURCE_ID_HORIZ_WALL_144, {0, 328}, NULL },
-  { RESOURCE_ID_HORIZ_WALL_144, {144, 328}, NULL },
-  { RESOURCE_ID_VERT_WALL_168, {0, 0}, NULL },
-  { RESOURCE_ID_VERT_WALL_168, {0, 168}, NULL },
-  { RESOURCE_ID_VERT_WALL_168, {280, 0}, NULL },
-  { RESOURCE_ID_VERT_WALL_168, {280, 168}, NULL },
-};
-
 static LevelSpriteLocation level0_scenery[] = {
   { RESOURCE_ID_VERT_WATER_24, {176, 210}, NULL },
   { RESOURCE_ID_VERT_WATER_24, {168, 210}, NULL },
@@ -94,13 +83,15 @@ static LevelSpriteLocation level0_scenery[] = {
   { RESOURCE_ID_HORIZ_WATER_24, {120, 114}, NULL },
 };
 
-static LevelFinishLine level0_finish_group = {
-  { RESOURCE_ID_FINISH_LINE_VERT, {100, 55}, NULL },
-  { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
-  { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
-  { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
-  { RESOURCE_ID_FINISH_BOX_4, {175, 30}, NULL },
-  { RESOURCE_ID_LIGHT_SIGNAL_ALL, {105, 30}, NULL },
+static LevelSpriteLocation level0_walls[] = {
+  { RESOURCE_ID_HORIZ_WALL_144, {0, 0}, NULL },
+  { RESOURCE_ID_HORIZ_WALL_144, {144, 0}, NULL },
+  { RESOURCE_ID_HORIZ_WALL_144, {0, 328}, NULL },
+  { RESOURCE_ID_HORIZ_WALL_144, {144, 328}, NULL },
+  { RESOURCE_ID_VERT_WALL_168, {0, 0}, NULL },
+  { RESOURCE_ID_VERT_WALL_168, {0, 168}, NULL },
+  { RESOURCE_ID_VERT_WALL_168, {280, 0}, NULL },
+  { RESOURCE_ID_VERT_WALL_168, {280, 168}, NULL },
 };
 
 // Track layout - drawn in order of index in array
@@ -121,6 +112,20 @@ static LevelSpriteLocation level0_tracks[] = {
   { RESOURCE_ID_VERT_ROAD_50, {200, 100}, NULL },
   { RESOURCE_ID_VERT_ROAD_50, {200, 150}, NULL },
   { RESOURCE_ID_VERT_ROAD_50, {200, 200}, NULL },
+};
+
+static LevelSpriteLocation level0_checkpoints[] = {
+  { RESOURCE_ID_CHECKPOINT_VERT_70, {165, 255}, NULL },
+  { RESOURCE_ID_CHECKPOINT_HORIZ_70, {200, 115}, NULL },
+};
+
+static LevelFinishLine level0_finish_group = {
+  { RESOURCE_ID_FINISH_LINE_VERT, {100, 55}, NULL },
+  { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
+  { RESOURCE_ID_FINISH_BOX_4, {175, 30}, NULL },
+  { RESOURCE_ID_LIGHT_SIGNAL_ALL, {105, 30}, NULL },
 };
 
 static GPoint level0_track_points0[] = {
@@ -172,6 +177,7 @@ static LevelSpriteDetails level0_details = {
   .scenery = level0_scenery,
   .walls = level0_walls,
   .tracks = level0_tracks,
+  .checkpoints = level0_checkpoints,
   .finish_group = &level0_finish_group,
   .track_points0 = level0_track_points0,
 };

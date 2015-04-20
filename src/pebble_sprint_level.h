@@ -27,6 +27,7 @@ typedef struct {
   LevelSpriteLocation *scenery;
   LevelSpriteLocation *walls;
   LevelSpriteLocation *tracks;
+  LevelSpriteLocation *checkpoints;
   LevelFinishLine *finish_group;
   GPoint *track_points0;
   Car *finish_order[NUM_CARS_TOTAL];
@@ -45,6 +46,8 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds);
 
 uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent);
 
+void update_checkpoints(Car *car_ptr);
+
 void set_placement_position(Car *car_ptr);
 
 void update_placements(Car *car_ptr);
@@ -53,7 +56,7 @@ void update_car_angle_opp(Car* car_ptr);
 
 void update_track_point(Car *car_ptr);
 
-void update_car_lap(Car *car_ptr);
+void update_user_lap(Car *car_ptr);
 
 void update_signal(int countdown);
 

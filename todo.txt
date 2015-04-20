@@ -4,7 +4,7 @@ Logic:
 --Put cars in finish boxes after done racing
 --Add countdown logic/timer before start of race
 --Update computer logic of other cars to be +/- track points
-add checkpoint logic for user to pass to finish level (based on overlap and order of specific track section)
+--add checkpoint logic for user to pass to finish level (based on overlap and order of specific track section)
 Weapons on user car
 Weapons on opponent car
 Oil slick spots show up randomly
@@ -35,4 +35,20 @@ Open/close gate
 Fire animation of exploding car
 checkpoint track
 speed boost
+
+
+
+SVG sed scripts:
+
+Road filter:
+grep "g id" level0_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/" },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}?/ | sed s/?ROAD_NE, [{}, 0-9]*]//
+
+Sprite Filter:
+grep "g id" level0_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/", NULL },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}"/ | sed s/"[{}, 0-9]*SCALE([-, 1]*) TRANSLATE([-,0-9 .]*) TRANSLATE("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/")"/"}"/ > level0_sprites_raw.h
+
+Track Points:
+grep "rect id=\"track_point\"" level0_svg.svg |  sed s/" *<[A-z0F =#:\"]*x=\""/"  {"/ | sed s/"\" y=\""/", "/ | sed s/"\" width[A-z0-9=<>/ \"]*"/"},"/
+
+Resource Filter
+grep RESOURCE_ID level0_sprites.h | sed s/"{ RESOURCE_ID_"/"{  \"type\": \"png\",  \"name\": \""/ | sed s/", {[ ,0-9]*}, NULL }[,;]"/"\",\  \"file\": \"images\/\.png\" },"/ | sed s/"static LevelSpriteLocation level_grass ="/" "/ | sort | uniq
 

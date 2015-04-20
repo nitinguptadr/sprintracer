@@ -1,3 +1,5 @@
+  {  "type": "png",  "name": "CHECKPOINT_HORIZ_70",  "file": "images/checkpoint_horiz_70.png" },
+  {  "type": "png",  "name": "CHECKPOINT_VERT_70",  "file": "images/checkpoint_vert_70.png" },
   {  "type": "png",  "name": "CURVE_ROAD_NE",  "file": "images/curve_road_ne.png" },
   {  "type": "png",  "name": "CURVE_ROAD_NW",  "file": "images/curve_road_nw.png" },
   {  "type": "png",  "name": "CURVE_ROAD_SE",  "file": "images/curve_road_se.png" },
