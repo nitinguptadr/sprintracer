@@ -30,7 +30,9 @@ typedef struct {
   LevelSpriteLocation *checkpoints;
   LevelFinishLine *finish_group;
   GPoint *track_points0;
+  GPoint *car_locations;
   Car *finish_order[NUM_CARS_TOTAL];
+  int car_starting_angle;
 } LevelSpriteDetails;
 
 // Intializes current level
@@ -63,4 +65,8 @@ void update_track_point(Car *car_ptr);
 void update_user_lap(Car *car_ptr);
 
 void update_signal(int countdown);
+
+GPoint get_starting_location(int index);
+
+int get_starting_angle();
 

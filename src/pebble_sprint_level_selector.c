@@ -16,11 +16,11 @@ static void update_level_image(LevelNumId current_level) {
   int resource_id = RESOURCE_ID_LEVEL_0;
 
   switch (current_level) {
-    case LEVEL_ID0:
+    case LEVEL0_ID:
       resource_id = RESOURCE_ID_LEVEL_0;
       break;
-    case LEVEL_ID1:
-      //resource_id = RESOURCE_ID_LEVEL_1;
+    case LEVEL1_ID:
+      resource_id = RESOURCE_ID_LEVEL_1;
       break;
     default:
       resource_id = RESOURCE_ID_LEVEL_0;
@@ -50,7 +50,6 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
 extern void car_selector_window_push();
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   level_selector_window_pop();
-  level_set_current(LEVEL_ID0);
   car_selector_window_push();
 }
 

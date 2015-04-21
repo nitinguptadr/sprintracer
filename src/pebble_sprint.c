@@ -52,7 +52,7 @@ static char s_status_text[20];
 static int s_countdown = 3;
 static AppTimer *s_countdown_timer;
 
-static LevelNumId s_current_level = LEVEL_ID0;
+static LevelNumId s_current_level = LEVEL0_ID;
 
 enum {
   ROTATION_CCW = -1,  // counter-clockwise - UP button - add ANGLE_CHANGE
@@ -78,10 +78,20 @@ Car* car_opp1 = NULL;
 Car* car_opp2 = NULL;
 Car* car_opp3 = NULL;
 
+static void update_car_angle(Car* car_ptr, int change) {
+  car_ptr->prev_angle = car_ptr->angle;
+  if (change < 0) {
+    car_ptr->angle = (car_ptr->angle + change + ANGLE_MASK) % ANGLE_MASK;
+  } else {
+    car_ptr->angle = (car_ptr->angle + change) % ANGLE_MASK;
+  }
+
+  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
+}
+
 Car* car_create(GPoint start_position, int angle, int resource_white, int resource_black, int resource_color) {
   Car *car_ptr = malloc(sizeof(Car));
   memset(car_ptr, 0x00, sizeof(Car));
-  car_ptr->angle = angle;
   car_ptr->x_change = 0;
   car_ptr->y_change = 0;
   car_ptr->sprite_color = pge_sprite_create(start_position, resource_color);
@@ -91,6 +101,7 @@ Car* car_create(GPoint start_position, int angle, int resource_white, int resour
 #endif
   car_ptr->moving = false;
   car_ptr->resource_id = resource_white;
+  update_car_angle(car_ptr, angle);
   return car_ptr;
 }
 
@@ -186,18 +197,6 @@ static void update_car_position(Car* car_ptr) {
   } else {
     set_placement_position(car_ptr);
   }
-}
-
-static void update_car_angle(Car* car_ptr, int change) {
-  car_ptr->prev_angle = car_ptr->angle;
-  if (change < 0) {
-    car_ptr->angle = (car_ptr->angle + change + ANGLE_MASK) % ANGLE_MASK;
-  } else {
-    car_ptr->angle = (car_ptr->angle + change) % ANGLE_MASK;
-  }
-
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "update_car_angle %d", car_ptr->angle);
-  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 }
 
 void update_game_bounds() {
@@ -410,7 +409,7 @@ void game_init() {
   Layer *game_layer = pge_get_canvas();
 
   // Initialize Level
-  s_current_level = LEVEL_ID0;
+  s_current_level = level_get_current();
   level_initialize(game_layer, s_current_level);
 
   s_game_info_layer = text_layer_create((GRect) { .origin = { 0, 0 }, .size = { 144, 20 } });
@@ -419,32 +418,27 @@ void game_init() {
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Creating Cars");
 
-  int car_selection = get_car_selection(1);
-  car_opp1 = car_create((GPoint){.x = 120, .y = 60}, 0,
+  int starting_angle = get_starting_angle();
+  int car_selection = get_car_selection(0);
+  car_user = car_create(get_starting_location(0), starting_angle,
                         car_selection, car_selection, car_selection);
 
-  car_selection = get_car_selection(0);
-  car_user = car_create((GPoint){.x = 145, .y = 60}, 0,
+  car_selection = get_car_selection(1);
+  car_opp1 = car_create(get_starting_location(1), starting_angle,
                         car_selection, car_selection, car_selection);
 
   car_selection = get_car_selection(2);
-  car_opp2 = car_create((GPoint){.x = 145, .y = 82}, 0,
+  car_opp2 = car_create(get_starting_location(2), starting_angle,
                         car_selection, car_selection, car_selection);
 
   car_selection = get_car_selection(3);
-  car_opp3 = car_create((GPoint){.x = 120, .y = 82}, 0,
+  car_opp3 = car_create(get_starting_location(3), starting_angle,
                         car_selection, car_selection, car_selection);
 
   car_user->track_point_offset = 0; // Does not apply anyways
-  car_opp1->track_point_offset = -5;
-  car_opp2->track_point_offset = 0;
+  car_opp1->track_point_offset = 0;
+  car_opp2->track_point_offset = -5;
   car_opp3->track_point_offset = 5;
-
-
-  update_car_angle(car_user, -90);
-  update_car_angle(car_opp1, -90);
-  update_car_angle(car_opp2, -90);
-  update_car_angle(car_opp3, -90);
 
   // Update positions of each car
   GPoint pos = pge_sprite_get_position(car_user->sprite_color);

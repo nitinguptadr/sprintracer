@@ -23,10 +23,12 @@
       {  "type": "png",  "name": "FINISH_BOX_2",  "file": "images/finish_box_2.png" },
       {  "type": "png",  "name": "FINISH_BOX_3",  "file": "images/finish_box_3.png" },
       {  "type": "png",  "name": "FINISH_BOX_4",  "file": "images/finish_box_4.png" },
+      {  "type": "png",  "name": "FINISH_LINE_HORIZ",  "file": "images/finish_line_horiz.png" },
       {  "type": "png",  "name": "FINISH_LINE_VERT",  "file": "images/finish_line_vert.png" },
       {  "type": "png",  "name": "HORIZ_ROAD_50",  "file": "images/horiz_road_50.png" },
       {  "type": "png",  "name": "HORIZ_SHRUB_24",  "file": "images/horiz_shrub_24.png" },
       {  "type": "png",  "name": "HORIZ_WALL_144",  "file": "images/horiz_wall_144.png" },
+      {  "type": "png",  "name": "HORIZ_WALL_24",  "file": "images/horiz_wall_24.png" },
       {  "type": "png",  "name": "HORIZ_WATER_24",  "file": "images/horiz_water_24.png" },
       {  "type": "png",  "name": "LIGHT_SIGNAL_ALL",  "file": "images/light_signal_all.png" },
       {  "type": "png",  "name": "LIGHT_SIGNAL_GREEN",  "file": "images/light_signal_green.png" },
@@ -39,6 +41,7 @@
       {  "type": "png",  "name": "VERT_SHRUB_24",  "file": "images/vert_shrub_24.png" },
       {  "type": "png",  "name": "VERT_TREE_35",  "file": "images/vert_tree_35.png" },
       {  "type": "png",  "name": "VERT_WALL_168",  "file": "images/vert_wall_168.png" },
+      {  "type": "png",  "name": "VERT_WALL_24",  "file": "images/vert_wall_24.png" },
       {  "type": "png",  "name": "VERT_WATER_24",  "file": "images/vert_water_24.png" },
       {  "type": "png",  "name": "CAR_RED",  "file": "images/car_red.png"},
       {  "type": "png",  "name": "CAR_YELLOW",  "file": "images/car_yellow.png"},
@@ -47,7 +50,8 @@
       {  "type": "png",  "name": "CAR_BLUE",  "file": "images/car_blue.png"},
       {  "type": "png",  "name": "CAR_PURPLE",  "file": "images/car_purple.png"},
       {  "type": "png",  "name": "CAR_WHITE",  "file": "images/car_white.png"},
-      {  "type": "png",  "name": "LEVEL_0",  "file": "images/level0_small.png"}
+      {  "type": "png",  "name": "LEVEL_0",  "file": "images/level0_small.png"},
+      {  "type": "png",  "name": "LEVEL_1",  "file": "images/level1_small.png"}
     ]
   },
   "targetPlatforms": [

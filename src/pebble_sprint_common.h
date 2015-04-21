@@ -25,9 +25,9 @@
 #define CAR_PLACEMENT_UNSET 0
 
 typedef enum {
-  LEVEL_ID0,
-  LEVEL_ID1,
-  LEVEL_ID2,
+  LEVEL0_ID,
+  LEVEL1_ID,
+  LEVEL2_ID,
 
   // Add new levels above this
   LEVEL_COUNT,

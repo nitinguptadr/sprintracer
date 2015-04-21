@@ -3,7 +3,8 @@
 #include "pebble_sprint_level.h"
 
 #define LEVEL0_BOUNDS GRect(0, 0, SCREEN_RES_COLS*4, SCREEN_RES_ROWS*4)
-#define LEVEL0_FRAME GRect(SCREEN_RES_COLS, SCREEN_RES_ROWS, SCREEN_RES_COLS*2, SCREEN_RES_ROWS*2)
+
+#define LEVEL0_CAR_STARTING_ANGLE -90
 
 // Used for sprite collision - drawn in order of index in array
 static LevelSpriteLocation level0_sprites[] = {
@@ -171,8 +172,15 @@ static GPoint level0_track_points0[] = {
   {105, 70},
 };
 
+static GPoint level0_car_locations[] = {
+  {145, 55},
+  {145, 75},
+  {120, 55},
+  {120, 75},
+};
+
 static LevelSpriteDetails level0_details = {
-  .level = LEVEL_ID0,
+  .level = LEVEL0_ID,
   .sprites = level0_sprites,
   .scenery = level0_scenery,
   .walls = level0_walls,
@@ -180,4 +188,6 @@ static LevelSpriteDetails level0_details = {
   .checkpoints = level0_checkpoints,
   .finish_group = &level0_finish_group,
   .track_points0 = level0_track_points0,
+  .car_locations = level0_car_locations,
+  .car_starting_angle = LEVEL0_CAR_STARTING_ANGLE,
 };

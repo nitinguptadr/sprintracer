@@ -4,6 +4,7 @@
 #include "pge/additional/pge_sprite.h"
 #include "pge/additional/pge_collision.h"
 #include "resources/images/level0_sprites.h"
+#include "resources/images/level1_sprites.h"
 
 static LevelNumId s_current_level = 0;
 static LevelSpriteDetails *current_level = NULL;
@@ -13,10 +14,11 @@ static uint32_t current_num_walls = 0;
 static uint32_t current_num_tracks = 0;
 static uint32_t current_num_track_points0 = 0;
 static uint32_t current_num_checkpoints = 0;
+static uint32_t current_num_car_locations = 0;
 
 void level_initialize(Layer *game_layer, LevelNumId level) {
   switch(level) {
-    case LEVEL_ID0:
+    case LEVEL0_ID:
       layer_set_frame(game_layer, LEVEL0_BOUNDS);
       current_level = &level0_details;
       current_num_scenery = sizeof(level0_scenery) / sizeof(LevelSpriteLocation);
@@ -25,6 +27,18 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_num_tracks = sizeof(level0_tracks) / sizeof(LevelSpriteLocation);
       current_num_checkpoints = sizeof(level0_checkpoints) / sizeof(LevelSpriteLocation);
       current_num_track_points0 = sizeof(level0_track_points0) / sizeof(GPoint);
+      current_num_car_locations = sizeof(level0_car_locations) / sizeof(GPoint);
+      break;
+    case LEVEL1_ID:
+      layer_set_frame(game_layer, LEVEL1_BOUNDS);
+      current_level = &level1_details;
+      current_num_scenery = sizeof(level1_scenery) / sizeof(LevelSpriteLocation);
+      current_num_sprites = sizeof(level1_sprites) / sizeof(LevelSpriteLocation);
+      current_num_walls = sizeof(level1_walls) / sizeof(LevelSpriteLocation);
+      current_num_tracks = sizeof(level1_tracks) / sizeof(LevelSpriteLocation);
+      current_num_checkpoints = sizeof(level1_checkpoints) / sizeof(LevelSpriteLocation);
+      current_num_track_points0 = sizeof(level1_track_points0) / sizeof(GPoint);
+      current_num_car_locations = sizeof(level1_car_locations) / sizeof(GPoint);
       break;
     default:
       break;
@@ -195,13 +209,13 @@ void level_draw(GContext *ctx, GRect game_bounds) {
 #define CAR_BOUNDARY_OFFSET 3 // This is to offset from the corner point so the corner isn't calculated in the collision
 uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
   GLine top =    { GPoint(car_bounds.origin.x + CAR_BOUNDARY_OFFSET, car_bounds.origin.y),
-                   GPoint(car_bounds.origin.x + car_bounds.size.w - 2*CAR_BOUNDARY_OFFSET, car_bounds.origin.y) };
+                   GPoint(car_bounds.origin.x + car_bounds.size.w - CAR_BOUNDARY_OFFSET, car_bounds.origin.y) };
   GLine left =   { GPoint(car_bounds.origin.x, car_bounds.origin.y + CAR_BOUNDARY_OFFSET),
-                   GPoint(car_bounds.origin.x, car_bounds.origin.y + car_bounds.size.h - 2*CAR_BOUNDARY_OFFSET) };
+                   GPoint(car_bounds.origin.x, car_bounds.origin.y + car_bounds.size.h - CAR_BOUNDARY_OFFSET) };
   GLine right =  { GPoint(car_bounds.origin.x + car_bounds.size.w, car_bounds.origin.y + CAR_BOUNDARY_OFFSET),
-                   GPoint(car_bounds.origin.x + car_bounds.size.w, car_bounds.origin.y + car_bounds.size.h - 2*CAR_BOUNDARY_OFFSET) };
+                   GPoint(car_bounds.origin.x + car_bounds.size.w, car_bounds.origin.y + car_bounds.size.h - CAR_BOUNDARY_OFFSET) };
   GLine bottom = { GPoint(car_bounds.origin.x + CAR_BOUNDARY_OFFSET, car_bounds.origin.y + car_bounds.size.h),
-                   GPoint(car_bounds.origin.x + car_bounds.size.w - 2*CAR_BOUNDARY_OFFSET, car_bounds.origin.y + car_bounds.size.h) };
+                   GPoint(car_bounds.origin.x + car_bounds.size.w - CAR_BOUNDARY_OFFSET, car_bounds.origin.y + car_bounds.size.h) };
 
   GPoint top_center = GPoint((top.p1.x + top.p2.x) / 2, (top.p1.y + top.p2.y) / 2);
   GPoint left_center = GPoint((left.p1.x + left.p2.x) / 2, (left.p1.y + left.p2.y) / 2);
@@ -209,6 +223,10 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
   GPoint bottom_center = GPoint((bottom.p1.x + bottom.p2.x) / 2, (bottom.p1.y + bottom.p2.y) / 2);
 
   uint8_t allowable_directions = DIRECTION_ALL;
+
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Car Bounds %d %d %d %d", car_bounds.origin.x, car_bounds.origin.y, car_bounds.size.w, car_bounds.size.h);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "T: %d %d B: %d %d", top_center.x, top_center.y, bottom_center.x, bottom_center.y);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "L: %d %d R: %d %d", left_center.x, left_center.y, right_center.x, right_center.y);
 
   // Check center point of each wall of the car to see if it overlaps with the bounds of any wall - if any collide, mask out
   // the appropriate direction of collision
@@ -218,15 +236,27 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
       GRect wall_bounds = pge_sprite_get_bounds(current_level->walls[index].sprite);
       if (pge_collision_line_rectangle(&top, &wall_bounds) || pge_collision_point_rectangle(&top_center, &wall_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_UP);
+        if (pge_collision_line_rectangle(&top, &wall_bounds)) {
+          //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision U %lu", index);
+        }
+        if (pge_collision_point_rectangle(&top_center, &wall_bounds)) {
+          //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision U %d %d %d %d", wall_bounds.origin.x, wall_bounds.origin.y, wall_bounds.size.w, wall_bounds.size.h);
+        }
       }
       if (pge_collision_line_rectangle(&left, &wall_bounds) || pge_collision_point_rectangle(&left_center, &wall_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision L %lu", index);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision L %d %d %d %d", wall_bounds.origin.x, wall_bounds.origin.y, wall_bounds.size.w, wall_bounds.size.h);
       }
       if (pge_collision_line_rectangle(&right, &wall_bounds) || pge_collision_point_rectangle(&right_center, &wall_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision R %lu", index);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision R %d %d %d %d", wall_bounds.origin.x, wall_bounds.origin.y, wall_bounds.size.w, wall_bounds.size.h);
       }
       if (pge_collision_line_rectangle(&bottom, &wall_bounds) || pge_collision_point_rectangle(&bottom_center, &wall_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision D %lu", index);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Wall Collision D %d %d %d %d", wall_bounds.origin.x, wall_bounds.origin.y, wall_bounds.size.w, wall_bounds.size.h);
       }
     }
     // Check other sprites
@@ -234,15 +264,19 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->sprites[index].sprite);
       if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_UP);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision U %lu", index);
       }
       if (pge_collision_line_rectangle(&left, &sprite_bounds) || pge_collision_point_rectangle(&left_center, &sprite_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision L %lu", index);
       }
       if (pge_collision_line_rectangle(&right, &sprite_bounds) || pge_collision_point_rectangle(&right_center, &sprite_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision R %lu", index);
       }
       if (pge_collision_line_rectangle(&bottom, &sprite_bounds) || pge_collision_point_rectangle(&bottom_center, &sprite_bounds)) {
         allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
       }
     }
   }
@@ -445,4 +479,10 @@ void update_signal(int countdown) {
   }
 }
 
+GPoint get_starting_location(int index) {
+  return current_level->car_locations[index];
+}
 
+int get_starting_angle() {
+  return current_level->car_starting_angle;
+}

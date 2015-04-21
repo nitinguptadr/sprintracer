@@ -44,6 +44,7 @@ bool pge_collision_rectangle_rectangle(GRect *rect_a, GRect *rect_b) {
 }
 
 bool pge_collision_line_rectangle(GLine *line, GRect *rect) {
+  return false;
   bool retval = false;
 
   retval |= pge_collision_line_line( line, &(GLine){
