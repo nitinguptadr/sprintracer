@@ -146,7 +146,13 @@ static void update_car_position(Car* car_ptr) {
     // Check if car collides with any of the walls - use the center point of each of the four walls
     // of the sprite to check for the direction of the collision
     GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
-    uint8_t allowable_directions = level_collision_walls(s_current_level, car_bounds);
+    uint8_t allowable_directions;
+
+    if (car_ptr == car_user) {
+      allowable_directions = level_collision_walls(s_current_level, car_bounds);
+    } else {
+      allowable_directions = DIRECTION_ALL;
+    }
 
     // Check if car collides with any other car
     if ((car_ptr != car_user) && (car_user->lap <= s_num_laps)) {
@@ -487,13 +493,21 @@ void game_init() {
 /******************************** Title Window *****************************************/
 extern void level_selector_window_push();
 
-static void title_click(int button_id, bool long_click) {
+void title_click(int button_id, bool long_click) {
   switch(button_id) {
     case BUTTON_ID_UP:
+      title_pop();
+      level_selector_window_push();
+      break;
+
+    case BUTTON_ID_SELECT:
+      title_pop();
       level_selector_window_push();
       break;
 
     case BUTTON_ID_DOWN:
+      title_pop();
+      level_selector_window_push();
       break;
   }
 }

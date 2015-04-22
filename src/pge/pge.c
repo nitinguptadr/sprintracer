@@ -125,6 +125,7 @@ static void game_window_unload(Window *window) {
   bitmap_layer_destroy(s_bg_layer);
   gbitmap_destroy(s_bg_bitmap);
   s_bg_bitmap = NULL;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Game window unloaded");
 }
 
 static void frame_timer_handler(void *context) {
