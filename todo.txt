@@ -12,7 +12,7 @@ Weapons on user car
 Weapons on opponent car
 Oil slick spots show up randomly
 add speed boosts on the road
-Refresh title screen
+-Refresh title screen
 
 Settings:
 --------
@@ -38,6 +38,7 @@ Fire animation of exploding car
 checkpoint track
 speed boost
 slant tracks left/right/up/down (100 x 100)
+--slant tracks left/right/up/down (50 x 100 and 100 x 50) - accomplished via 90 degree existing curves
 X track (100 x 100)
 
 
