@@ -1,25 +1,14 @@
 #include "pebble_sprint_title.h"
+#include "pebble_sprint_common.h"
 
 // UI
 static Window *s_window;
 static Layer *s_canvas;
-//static TextLayer *s_title_layer, *s_up_layer, *s_select_layer, *s_down_layer;
-//static BitmapLayer *s_bg_layer;
-//static GBitmap *s_bg_bitmap;
 static GBitmap *s_car_line;
 static GBitmap *s_single_race;
 static GBitmap *s_pebble_sprint;
 static bool s_title_loaded = false;
-
 static PGEClickHandler *s_click_handler;
-
-// State
-static int s_background_res_id;
-static GColor s_title_color;
-//static char s_title_buffer[TITLE_LENGTH_MAX];
-//static char s_up_buffer[TITLE_ACTION_MAX];
-//static char s_select_buffer[TITLE_ACTION_MAX];
-//static char s_down_buffer[TITLE_ACTION_MAX];
 
 /*********************************** Clicks ***********************************/
 
@@ -57,8 +46,9 @@ static void draw_title(Layer *layer, GContext *ctx) {
 }
 
 /********************************* Window *************************************/
+static void window_appear(Window *window) {
+  game_deinit();
 
-static void window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect window_bounds = layer_get_bounds(window_layer);
 
@@ -71,58 +61,11 @@ static void window_load(Window *window) {
   s_single_race = gbitmap_create_with_resource(RESOURCE_ID_SINGLE_RACE);
   s_pebble_sprint = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_SPRINT);
 
-  // Allocate background
-  //if(s_bg_bitmap) {
-  //  gbitmap_destroy(s_bg_bitmap);
-  //}
-  //s_bg_bitmap = gbitmap_create_with_resource(s_background_res_id);
-
-  // BG Layer
-  //s_bg_layer = bitmap_layer_create(GRect(0, 0, window_bounds.size.w, window_bounds.size.h));
-  //bitmap_layer_set_bitmap(s_bg_layer, s_bg_bitmap);
-  //layer_add_child(window_layer, bitmap_layer_get_layer(s_bg_layer));
-#if 0
-  // Title
-  s_title_layer = text_layer_create(GRect(10, 40, window_bounds.size.w - 20, 60));
-  text_layer_set_text_color(s_title_layer, s_title_color);
-  text_layer_set_background_color(s_title_layer, GColorClear);
-  text_layer_set_text_alignment(s_title_layer, GTextAlignmentCenter);
-  text_layer_set_overflow_mode(s_title_layer, GTextOverflowModeWordWrap);
-  text_layer_set_font(s_title_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
-  text_layer_set_text(s_title_layer, s_title_buffer);
-  layer_add_child(window_layer, text_layer_get_layer(s_title_layer));
-
-  // UP TextLayer
-  s_up_layer = text_layer_create(GRect(0, 20, window_bounds.size.w, 30));
-  text_layer_set_text_color(s_up_layer, s_title_color);
-  text_layer_set_background_color(s_up_layer, GColorClear);
-  text_layer_set_text_alignment(s_up_layer, GTextAlignmentRight);
-  text_layer_set_font(s_up_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_text(s_up_layer, s_up_buffer);
-  layer_add_child(window_layer, text_layer_get_layer(s_up_layer));
-
-  // SELECT TextLayer
-  s_select_layer = text_layer_create(GRect(0, 75, window_bounds.size.w, 30));
-  text_layer_set_text_color(s_select_layer, s_title_color);
-  text_layer_set_background_color(s_select_layer, GColorClear);
-  text_layer_set_text_alignment(s_select_layer, GTextAlignmentRight);
-  text_layer_set_font(s_select_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_text(s_select_layer, s_select_buffer);
-  layer_add_child(window_layer, text_layer_get_layer(s_select_layer));
-
-  // DOWN TextLayer
-  s_down_layer = text_layer_create(GRect(0, 130, window_bounds.size.w, 30));
-  text_layer_set_text_color(s_down_layer, s_title_color);
-  text_layer_set_background_color(s_down_layer, GColorClear);
-  text_layer_set_text_alignment(s_down_layer, GTextAlignmentRight);
-  text_layer_set_font(s_down_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-  text_layer_set_text(s_down_layer, s_down_buffer);
-  layer_add_child(window_layer, text_layer_get_layer(s_down_layer));
-#endif
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Loaded Title Screen");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Appear Title Screen");
 }
 
-static void window_unload(Window *window) {
+static void window_disappear(Window *window) {
+  layer_remove_from_parent(s_canvas);
   layer_destroy(s_canvas);
   s_canvas = NULL;
 
@@ -132,18 +75,10 @@ static void window_unload(Window *window) {
   s_car_line = NULL;
   s_single_race = NULL;
   s_pebble_sprint = NULL;
-  //gbitmap_destroy(s_bg_bitmap);
-  //bitmap_layer_destroy(s_bg_layer);
-  //s_bg_bitmap = NULL;
-  //s_bg_layer = NULL;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Disappear Title Screen");
+}
 
-#if 0
-  text_layer_destroy(s_title_layer);
-  text_layer_destroy(s_up_layer);
-  text_layer_destroy(s_select_layer);
-  text_layer_destroy(s_down_layer);
-#endif
-
+static void window_unload(Window *window) {
   // Finally
   window_destroy(window);
   s_window = NULL;
@@ -152,20 +87,10 @@ static void window_unload(Window *window) {
 
 /********************************* Public *************************************/
 
-void title_push(int background_res_id, PGEClickHandler *click_handler) {
+void title_push(PGEClickHandler *click_handler) {
   if (s_title_loaded) {
     return;
   }
-  // Store values
-  s_title_color = GColorBlack;
-  s_background_res_id = background_res_id;
-#if 0
-  snprintf(s_title_buffer, sizeof(s_title_buffer), "%s", "Pebble Sprint");
-  snprintf(s_up_buffer, sizeof(s_up_buffer), "%s", "Single Race");
-  snprintf(s_select_buffer, sizeof(s_select_buffer), "%s", "Tournament");
-  snprintf(s_down_buffer, sizeof(s_down_buffer), "%s", "Settings");
-#endif
-
   s_click_handler = click_handler;
 
   // Create Window
@@ -174,8 +99,9 @@ void title_push(int background_res_id, PGEClickHandler *click_handler) {
     window_set_click_config_provider(s_window, click_config_provider);
     window_set_fullscreen(s_window, true);
     window_set_window_handlers(s_window, (WindowHandlers) {
-      .load = window_load,
-      .unload = window_unload
+      .unload = window_unload,
+      .appear = window_appear,
+      .disappear = window_disappear
     });
   }
   window_stack_push(s_window, true);
@@ -186,7 +112,6 @@ void title_pop() {
   if (s_title_loaded) {
     // Should self-destroy
     window_stack_pop(true);
-    s_window = NULL;
   }
   s_title_loaded = false;
 }

@@ -14,8 +14,6 @@ static GBitmap *s_car_bitmaps[NUM_CAR_RESOURCES];
 // Resource IDs for all cars;
 static int current_cars[NUM_CARS_TOTAL];
 
-extern void game_init();
-extern void game_deinit();
 static void car_selector_window_pop();
 
 static void update_current_car(int index) {

@@ -111,8 +111,6 @@ static void window_unload(Window *window) {
 }
 
 /********************************* Public *************************************/
-extern void  game_deinit();
-
 void level_selector_window_push() {
   game_deinit();
 

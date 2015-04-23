@@ -496,17 +496,14 @@ extern void level_selector_window_push();
 void title_click(int button_id, bool long_click) {
   switch(button_id) {
     case BUTTON_ID_UP:
-      title_pop();
       level_selector_window_push();
       break;
 
     case BUTTON_ID_SELECT:
-      title_pop();
       level_selector_window_push();
       break;
 
     case BUTTON_ID_DOWN:
-      title_pop();
       level_selector_window_push();
       break;
   }
@@ -515,10 +512,8 @@ void title_click(int button_id, bool long_click) {
 /******************************** App *****************************************/
 
 static void pebble_sprint_init(void) {
-  //pge_title_push("Pebble\nSprint", "SPEED >", "PLAY >", GColorBlack, 0, title_click);
-  title_push(0, title_click);
+  title_push(title_click);
   s_title_pushed = true;
-  //pge_set_background(RESOURCE_ID_BG_LEVEL_0);
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window Loaded--");
 }
@@ -529,7 +524,6 @@ void pge_init() {
 
   s_game_initialized = false;
   pebble_sprint_init();
-  //pge_splash_show(pebble_sprint_init);
 }
 
 void pge_deinit() {

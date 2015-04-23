@@ -10,7 +10,7 @@
  * Show a pre-built title page with your game title and the background resource
  * Use the button ID in the click handler to navigate the title screen
  */
-void title_push(int background_res_id, PGEClickHandler *click_handler);
+void title_push(PGEClickHandler *click_handler);
 
 /**
  * Hide and destroy the title page
