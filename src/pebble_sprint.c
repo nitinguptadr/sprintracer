@@ -78,6 +78,8 @@ Car* car_opp1 = NULL;
 Car* car_opp2 = NULL;
 Car* car_opp3 = NULL;
 
+extern ButtonActionIds *get_button_actions();
+
 static void update_car_angle(Car* car_ptr, int change) {
   car_ptr->prev_angle = car_ptr->angle;
   if (change < 0) {
@@ -251,11 +253,12 @@ static void update_user_car() {
   // Check if user car crossed finish line and update lap
   update_user_lap(car_user);
 
+  ButtonActionIds *button_actions = get_button_actions();
   // Update user car angle
-  if (pge_get_button_state(BUTTON_ID_UP)) {
+  if (pge_get_button_state(button_actions->counterclockwise)) {
     direction = ROTATION_CCW;
     update_car_angle(car_user, direction * ANGLE_CHANGE); 
-  } else if (pge_get_button_state(BUTTON_ID_DOWN)) {
+  } else if (pge_get_button_state(button_actions->clockwise)) {
     direction = ROTATION_CW;
     update_car_angle(car_user, direction * ANGLE_CHANGE); 
   } else {
@@ -341,29 +344,27 @@ void draw(GContext *ctx) {
 }
 
 static void click(int button_id, bool long_click) {
-  switch(button_id) {
-    case BUTTON_ID_UP:
-      if (s_race_status == RACE_STATUS_STARTED) {
-        direction = ROTATION_CCW;
-        update_car_angle(car_user, direction * ANGLE_CHANGE); 
-      }
-      break;
+  ButtonActionIds *button_actions = get_button_actions();
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Test 1");
 
-    case BUTTON_ID_SELECT:
-      if (s_race_status == RACE_STATUS_NONE) {
-        s_race_status = RACE_STATUS_COUNTDOWN;
-      }
-#ifdef DEBUG
-      car_user->moving = !car_user->moving;
-#endif
-      break;
-
-    case BUTTON_ID_DOWN:
-      if (s_race_status == RACE_STATUS_STARTED) {
-        direction = ROTATION_CW;
-        update_car_angle(car_user, direction * ANGLE_CHANGE); 
-      }
-      break;
+  if (button_id == button_actions->counterclockwise)
+  {
+    if (s_race_status == RACE_STATUS_STARTED) {
+      direction = ROTATION_CCW;
+      update_car_angle(car_user, direction * ANGLE_CHANGE); 
+    }
+  } else if (button_id == button_actions->select) {
+    if (s_race_status == RACE_STATUS_NONE) {
+      s_race_status = RACE_STATUS_COUNTDOWN;
+    }
+  #ifdef DEBUG
+    car_user->moving = !car_user->moving;
+  #endif
+  } else if (button_id == button_actions->clockwise) {
+    if (s_race_status == RACE_STATUS_STARTED) {
+      direction = ROTATION_CW;
+      update_car_angle(car_user, direction * ANGLE_CHANGE); 
+    }
   }
 }
 
@@ -492,6 +493,7 @@ void game_init() {
 
 /******************************** Title Window *****************************************/
 extern void level_selector_window_push();
+extern void settings_window_push();
 
 void title_click(int button_id, bool long_click) {
   switch(button_id) {
@@ -504,26 +506,23 @@ void title_click(int button_id, bool long_click) {
       break;
 
     case BUTTON_ID_DOWN:
-      level_selector_window_push();
+      settings_window_push();
       break;
   }
 }
 
 /******************************** App *****************************************/
-
-static void pebble_sprint_init(void) {
-  title_push(title_click);
-  s_title_pushed = true;
-
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window Loaded--");
-}
-
 void pge_init() {
   //srand(time(NULL));
   car_speed = CAR_SPEED_DEFAULT;
 
   s_game_initialized = false;
-  pebble_sprint_init();
+  title_push(title_click);
+  s_title_pushed = true;
+
+  set_button_actions(BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN);
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Main Window Loaded--");
 }
 
 void pge_deinit() {

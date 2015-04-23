@@ -7,6 +7,7 @@ static Layer *s_canvas;
 static GBitmap *s_car_line;
 static GBitmap *s_single_race;
 static GBitmap *s_pebble_sprint;
+static GBitmap *s_settings;
 static bool s_title_loaded = false;
 static PGEClickHandler *s_click_handler;
 
@@ -43,6 +44,9 @@ static void draw_title(Layer *layer, GContext *ctx) {
 
   bounds = gbitmap_get_bounds(s_pebble_sprint);
   graphics_draw_bitmap_in_rect(ctx, s_pebble_sprint, GRect(22, 60, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_settings);
+  graphics_draw_bitmap_in_rect(ctx, s_settings, GRect(65, 142, bounds.size.w, bounds.size.h));
 }
 
 /********************************* Window *************************************/
@@ -58,8 +62,18 @@ static void window_appear(Window *window) {
   layer_add_child(window_layer, s_canvas);
 
   s_car_line = gbitmap_create_with_resource(RESOURCE_ID_CAR_LINE);
+  if (!s_car_line) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_car_line");
+  }
   s_single_race = gbitmap_create_with_resource(RESOURCE_ID_SINGLE_RACE);
+  if (!s_single_race) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_single_race");
+  }
   s_pebble_sprint = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_SPRINT);
+  if (!s_pebble_sprint) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_pebble_sprint");
+  }
+  s_settings = gbitmap_create_with_resource(RESOURCE_ID_SETTINGS);
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Appear Title Screen");
 }
@@ -69,12 +83,20 @@ static void window_disappear(Window *window) {
   layer_destroy(s_canvas);
   s_canvas = NULL;
 
-  gbitmap_destroy(s_car_line);
-  gbitmap_destroy(s_single_race);
-  gbitmap_destroy(s_pebble_sprint);
+  if (s_car_line) {
+    gbitmap_destroy(s_car_line);
+  }
+  if (s_single_race) {
+    gbitmap_destroy(s_single_race);
+  }
+  if (s_pebble_sprint) {
+    gbitmap_destroy(s_pebble_sprint);
+  }
+  gbitmap_destroy(s_settings);
   s_car_line = NULL;
   s_single_race = NULL;
   s_pebble_sprint = NULL;
+  s_settings = NULL;
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Disappear Title Screen");
 }
 

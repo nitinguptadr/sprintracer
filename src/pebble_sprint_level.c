@@ -279,6 +279,98 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
         //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
       }
     }
+
+    // Check finish group
+    GRect sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_1.sprite);
+    if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_UP);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision U %lu", index);
+    }
+    if (pge_collision_line_rectangle(&left, &sprite_bounds) || pge_collision_point_rectangle(&left_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision L %lu", index);
+    }
+    if (pge_collision_line_rectangle(&right, &sprite_bounds) || pge_collision_point_rectangle(&right_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision R %lu", index);
+    }
+    if (pge_collision_line_rectangle(&bottom, &sprite_bounds) || pge_collision_point_rectangle(&bottom_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
+    }
+
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_2.sprite);
+    if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_UP);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision U %lu", index);
+    }
+    if (pge_collision_line_rectangle(&left, &sprite_bounds) || pge_collision_point_rectangle(&left_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision L %lu", index);
+    }
+    if (pge_collision_line_rectangle(&right, &sprite_bounds) || pge_collision_point_rectangle(&right_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision R %lu", index);
+    }
+    if (pge_collision_line_rectangle(&bottom, &sprite_bounds) || pge_collision_point_rectangle(&bottom_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
+    }
+
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_3.sprite);
+    if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_UP);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision U %lu", index);
+    }
+    if (pge_collision_line_rectangle(&left, &sprite_bounds) || pge_collision_point_rectangle(&left_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision L %lu", index);
+    }
+    if (pge_collision_line_rectangle(&right, &sprite_bounds) || pge_collision_point_rectangle(&right_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision R %lu", index);
+    }
+    if (pge_collision_line_rectangle(&bottom, &sprite_bounds) || pge_collision_point_rectangle(&bottom_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
+    }
+
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_4.sprite);
+    if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_UP);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision U %lu", index);
+    }
+    if (pge_collision_line_rectangle(&left, &sprite_bounds) || pge_collision_point_rectangle(&left_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision L %lu", index);
+    }
+    if (pge_collision_line_rectangle(&right, &sprite_bounds) || pge_collision_point_rectangle(&right_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision R %lu", index);
+    }
+    if (pge_collision_line_rectangle(&bottom, &sprite_bounds) || pge_collision_point_rectangle(&bottom_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
+    }
+
+    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->light_signal.sprite);
+    if (pge_collision_line_rectangle(&top, &sprite_bounds) || pge_collision_point_rectangle(&top_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_UP);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision U %lu", index);
+    }
+    if (pge_collision_line_rectangle(&left, &sprite_bounds) || pge_collision_point_rectangle(&left_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_LEFT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision L %lu", index);
+    }
+    if (pge_collision_line_rectangle(&right, &sprite_bounds) || pge_collision_point_rectangle(&right_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_RIGHT);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision R %lu", index);
+    }
+    if (pge_collision_line_rectangle(&bottom, &sprite_bounds) || pge_collision_point_rectangle(&bottom_center, &sprite_bounds)) {
+      allowable_directions &= ~((uint8_t)DIRECTION_DOWN);
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Sprite Collision D %lu", index);
+    }
+
   }
 
   return allowable_directions;

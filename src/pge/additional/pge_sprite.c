@@ -1,11 +1,18 @@
 #include "pge_sprite.h"
 #include "pge_collision.h"
 
+GBitmap *s_bitmaps[60] = {0};
+
 PGESprite* pge_sprite_create(GPoint position, int initial_resource_id) {
   PGESprite *this = malloc(sizeof(PGESprite));
 
+  if (s_bitmaps[initial_resource_id] == NULL) {
+    s_bitmaps[initial_resource_id] = gbitmap_create_with_resource(initial_resource_id);
+  }
+
+  this->bitmap = s_bitmaps[initial_resource_id];
+  this->resource_id = initial_resource_id;
   // Allocate
-  this->bitmap = gbitmap_create_with_resource(initial_resource_id);
   this->position = position;
   this->angle = 0;
 
@@ -15,15 +22,24 @@ PGESprite* pge_sprite_create(GPoint position, int initial_resource_id) {
 
 void pge_sprite_destroy(PGESprite *this) {
   if (this) {
-    gbitmap_destroy(this->bitmap);
+    if (s_bitmaps[this->resource_id]) {
+      gbitmap_destroy(s_bitmaps[this->resource_id]);
+    }
+    s_bitmaps[this->resource_id] = NULL;
+    this->bitmap = NULL;
     free(this);
   }
 }
 
 void pge_sprite_set_anim_frame(PGESprite *this, int resource_id) {
   if (this) {
-    gbitmap_destroy(this->bitmap);
-    this->bitmap = gbitmap_create_with_resource(resource_id);
+    //gbitmap_destroy(this->bitmap);
+    if (s_bitmaps[resource_id] == NULL) {
+      s_bitmaps[resource_id] = gbitmap_create_with_resource(resource_id);
+    }
+
+    this->bitmap = s_bitmaps[resource_id];
+    this->resource_id = resource_id;
   }
 }
 

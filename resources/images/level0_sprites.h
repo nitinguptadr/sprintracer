@@ -56,11 +56,6 @@ static LevelSpriteLocation level0_sprites[] = {
   { RESOURCE_ID_VERT_SHRUB_24, {192, 226}, NULL },
   { RESOURCE_ID_VERT_SHRUB_24, {184, 226}, NULL },
   { RESOURCE_ID_VERT_SHRUB_24, {160, 218}, NULL },
-  { RESOURCE_ID_FINISH_BOX_1, {115, 30}, NULL },
-  { RESOURCE_ID_FINISH_BOX_2, {135, 30}, NULL },
-  { RESOURCE_ID_FINISH_BOX_3, {155, 30}, NULL },
-  { RESOURCE_ID_FINISH_BOX_4, {175, 30}, NULL },
-  { RESOURCE_ID_LIGHT_SIGNAL_ALL, {105, 30}, NULL },
 };
 
 static LevelSpriteLocation level0_scenery[] = {

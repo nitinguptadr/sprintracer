@@ -12,6 +12,7 @@
 // Sprite base object
 typedef struct {
   GBitmap *bitmap;
+  int resource_id;
   GPoint position;
   int32_t angle;
 } PGESprite;

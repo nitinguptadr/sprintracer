@@ -53,6 +53,14 @@ typedef struct {
   unsigned int current_checkpoint;
 } Car;
 
+typedef struct {
+  int clockwise;
+  int select;
+  int counterclockwise;
+} ButtonActionIds;
+
+extern void set_button_actions(int cw, int select, int ccw);
+
 extern void game_init();
 extern void game_deinit();
 

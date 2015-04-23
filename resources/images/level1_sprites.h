@@ -45,11 +45,6 @@ static LevelSpriteLocation level1_sprites[] = {
   { RESOURCE_ID_VERT_SHRUB_96, {190, 146}, NULL },
   { RESOURCE_ID_HORIZ_SHRUB_48, {156, 242}, NULL },
   { RESOURCE_ID_HORIZ_SHRUB_48, {55, 196}, NULL },
-  { RESOURCE_ID_FINISH_BOX_1, {250, 100}, NULL },
-  { RESOURCE_ID_FINISH_BOX_2, {250, 120}, NULL },
-  { RESOURCE_ID_FINISH_BOX_3, {250, 140}, NULL },
-  { RESOURCE_ID_FINISH_BOX_4, {250, 160}, NULL },
-  { RESOURCE_ID_LIGHT_SIGNAL_ALL, {255, 80}, NULL },
 };
 
 static LevelSpriteLocation level1_scenery[] = {
@@ -187,8 +182,8 @@ static GPoint level1_track_points0[] = {
 };
 
 static GPoint level1_car_locations[] = {
-  {227, 135},
-  {207, 135},
+  {227, 140},
+  {207, 140},
   {207, 115},
   {227, 115},
 };
