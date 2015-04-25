@@ -285,9 +285,12 @@ static void update_opp_cars() {
 
 static void update_countdown(void *context) {
   s_countdown--;
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Starting Race in %d seconds", s_countdown);
+
   if (s_countdown > 0) {
     s_countdown_timer = app_timer_register(1000, update_countdown, NULL);
   }
+
   update_signal(s_countdown);
 }
 
@@ -390,7 +393,8 @@ void game_deinit() {
   car_destroy(car_opp3);
   car_opp3 = NULL;
 
-  if (!s_countdown_timer) {
+  if (s_countdown_timer) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Cancelling s_countdown_timer = %p", (void*)s_countdown_timer);
     app_timer_cancel(s_countdown_timer);
     s_countdown_timer = NULL;
   }

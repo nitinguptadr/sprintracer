@@ -58,6 +58,9 @@ static void window_appear(Window *window) {
 
   // Set up canvas
   s_canvas = layer_create(GRect(0, 0, window_bounds.size.w, window_bounds.size.h));
+  if (!s_canvas) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_canvas");
+  }
   layer_set_update_proc(s_canvas, draw_title);
   layer_add_child(window_layer, s_canvas);
 
@@ -74,6 +77,9 @@ static void window_appear(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_pebble_sprint");
   }
   s_settings = gbitmap_create_with_resource(RESOURCE_ID_SETTINGS);
+  if (!s_pebble_sprint) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_settings");
+  }
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Appear Title Screen");
 }
@@ -92,7 +98,9 @@ static void window_disappear(Window *window) {
   if (s_pebble_sprint) {
     gbitmap_destroy(s_pebble_sprint);
   }
-  gbitmap_destroy(s_settings);
+  if (s_settings) {
+    gbitmap_destroy(s_settings);
+  }
   s_car_line = NULL;
   s_single_race = NULL;
   s_pebble_sprint = NULL;
