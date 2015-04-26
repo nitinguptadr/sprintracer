@@ -13,8 +13,14 @@
   },
   "resources": {
     "media": [
+      {  "type": "png",  "name": "ARROW_E",  "file": "images/arrow_e.png" },
+      {  "type": "png",  "name": "ARROW_N",  "file": "images/arrow_n.png" },
+      {  "type": "png",  "name": "ARROW_S",  "file": "images/arrow_s.png" },
+      {  "type": "png",  "name": "ARROW_W",  "file": "images/arrow_w.png" },
       {  "type": "png",  "name": "CHECKPOINT_HORIZ_70",  "file": "images/checkpoint_horiz_70.png" },
       {  "type": "png",  "name": "CHECKPOINT_VERT_70",  "file": "images/checkpoint_vert_70.png" },
+      {  "type": "png",  "name": "CROSS_ROAD_BIG",  "file": "images/cross_road_big.png" },
+      {  "type": "png",  "name": "CROSS_ROAD_SMALL",  "file": "images/cross_road_small.png" },
       {  "type": "png",  "name": "CURVE_ROAD_NE",  "file": "images/curve_road_ne.png" },
       {  "type": "png",  "name": "CURVE_ROAD_NW",  "file": "images/curve_road_nw.png" },
       {  "type": "png",  "name": "CURVE_ROAD_SE",  "file": "images/curve_road_se.png" },
@@ -26,6 +32,8 @@
       {  "type": "png",  "name": "FINISH_LINE_HORIZ",  "file": "images/finish_line_horiz.png" },
       {  "type": "png",  "name": "FINISH_LINE_VERT",  "file": "images/finish_line_vert.png" },
       {  "type": "png",  "name": "HORIZ_ROAD_50",  "file": "images/horiz_road_50.png" },
+      {  "type": "png",  "name": "HORIZ_ROAD_FUNNEL_E",  "file": "images/horiz_road_funnel_e.png" },
+      {  "type": "png",  "name": "HORIZ_ROAD_FUNNEL_W",  "file": "images/horiz_road_funnel_w.png" },
       {  "type": "png",  "name": "HORIZ_SHRUB_24",  "file": "images/horiz_shrub_24.png" },
       {  "type": "png",  "name": "HORIZ_SHRUB_48",  "file": "images/horiz_shrub_48.png" },
       {  "type": "png",  "name": "HORIZ_SHRUB_96",  "file": "images/horiz_shrub_96.png" },
@@ -41,6 +49,8 @@
       {  "type": "png",  "name": "VERT_BUSH_35",  "file": "images/vert_bush_35.png" },
       {  "type": "png",  "name": "VERT_BUSH_4",  "file": "images/vert_bush_4.png" },
       {  "type": "png",  "name": "VERT_ROAD_50",  "file": "images/vert_road_50.png" },
+      {  "type": "png",  "name": "VERT_ROAD_FUNNEL_N",  "file": "images/vert_road_funnel_n.png" },
+      {  "type": "png",  "name": "VERT_ROAD_FUNNEL_S",  "file": "images/vert_road_funnel_s.png" },
       {  "type": "png",  "name": "VERT_SHRUB_24",  "file": "images/vert_shrub_24.png" },
       {  "type": "png",  "name": "VERT_SHRUB_48",  "file": "images/vert_shrub_48.png" },
       {  "type": "png",  "name": "VERT_SHRUB_96",  "file": "images/vert_shrub_96.png" },
@@ -51,6 +61,7 @@
       {  "type": "png",  "name": "VERT_WATER_24",  "file": "images/vert_water_24.png" },
       {  "type": "png",  "name": "VERT_WATER_20_40",  "file": "images/vert_water_20_40.png" },
       {  "type": "png",  "name": "VERT_WATER_20_80",  "file": "images/vert_water_20_80.png" },
+      {  "type": "png",  "name": "WATER_96_96",  "file": "images/water_96_96.png" },
       {  "type": "png",  "name": "CAR_RED",  "file": "images/car_red.png"},
       {  "type": "png",  "name": "CAR_YELLOW",  "file": "images/car_yellow.png"},
       {  "type": "png",  "name": "CAR_ORANGE",  "file": "images/car_orange.png"},
@@ -65,7 +76,8 @@
       {  "type": "png",  "name": "CONTROLS0",  "file": "images/shrub_8.png"},
       {  "type": "png",  "name": "SINGLE_RACE",  "file": "images/single_race.png"},
       {  "type": "png",  "name": "LEVEL_0",  "file": "images/level0_small.png"},
-      {  "type": "png",  "name": "LEVEL_1",  "file": "images/level1_small.png"}
+      {  "type": "png",  "name": "LEVEL_1",  "file": "images/level1_small.png"},
+      {  "type": "png",  "name": "LEVEL_2",  "file": "images/level2_small.png"}
     ]
   },
   "targetPlatforms": [

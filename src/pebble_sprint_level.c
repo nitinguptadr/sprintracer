@@ -5,6 +5,7 @@
 #include "pge/additional/pge_collision.h"
 #include "resources/images/level0_sprites.h"
 #include "resources/images/level1_sprites.h"
+#include "resources/images/level2_sprites.h"
 
 static LevelNumId s_current_level = 0;
 static LevelSpriteDetails *current_level = NULL;
@@ -39,6 +40,17 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_num_checkpoints = sizeof(level1_checkpoints) / sizeof(LevelSpriteLocation);
       current_num_track_points0 = sizeof(level1_track_points0) / sizeof(GPoint);
       current_num_car_locations = sizeof(level1_car_locations) / sizeof(GPoint);
+      break;
+    case LEVEL2_ID:
+      layer_set_frame(game_layer, LEVEL2_BOUNDS);
+      current_level = &level2_details;
+      current_num_scenery = sizeof(level2_scenery) / sizeof(LevelSpriteLocation);
+      current_num_sprites = sizeof(level2_sprites) / sizeof(LevelSpriteLocation);
+      current_num_walls = sizeof(level2_walls) / sizeof(LevelSpriteLocation);
+      current_num_tracks = sizeof(level2_tracks) / sizeof(LevelSpriteLocation);
+      current_num_checkpoints = sizeof(level2_checkpoints) / sizeof(LevelSpriteLocation);
+      current_num_track_points0 = sizeof(level2_track_points0) / sizeof(GPoint);
+      current_num_car_locations = sizeof(level2_car_locations) / sizeof(GPoint);
       break;
     default:
       current_level = NULL;
@@ -149,7 +161,7 @@ void level_draw(GContext *ctx, GRect game_bounds) {
   #endif
 
     // Only draw sprites that are on screen
-    graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+    graphics_context_set_compositing_mode(ctx, GCompOpSet);
     for (uint32_t index = 0; index < current_num_scenery; index++) {
       GRect sprite_bounds = pge_sprite_get_bounds(current_level->scenery[index].sprite);
       if (grect_overlaps_grect(fill_rect, sprite_bounds)) {

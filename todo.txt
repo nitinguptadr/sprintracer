@@ -14,11 +14,14 @@ Oil slick spots show up randomly
 add speed boosts on the road
 -Refresh title screen
 tournament mode
+Add animation to title screen
 
 Settings:
 --------
 difficulty setting?? -- slower on grass
-controls settings window and logic
+--controls settings window and logic
+number of laps
+add pngs for control settings rather than just text
 
 Status Bar:
 ----------
@@ -47,10 +50,14 @@ X track (100 x 100)
 SVG sed scripts:
 
 Road filter:
-grep "g id" level0_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/" },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}?/ | sed s/?ROAD_NE, [{}, 0-9]*]//
+grep "g id" level0_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/" },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}?/ | sed s/?ROAD_NE, [{}, 0-9]*]
+grep "g id" level1_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/" },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}?/ | sed s/?ROAD_NE, [{}, 0-9]*]
+grep "g id" level2_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/" },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}?/ | sed s/?ROAD_NE, [{}, 0-9]*]
 
 Sprite Filter:
 grep "g id" level0_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/", NULL },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}"/ | sed s/"[{}, 0-9]*SCALE([-, 1]*) TRANSLATE([-,0-9 .]*) TRANSLATE("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/")"/"}"/ > level0_sprites_raw.h
+grep "g id" level1_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/", NULL },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}"/ | sed s/"[{}, 0-9]*SCALE([-, 1]*) TRANSLATE([-,0-9 .]*) TRANSLATE("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/")"/"}"/ > level1_sprites_raw.h
+grep "g id" level2_svg.svg | sed s/" *<g id=\""/"  { RESOURCE_ID_"/ | sed s/"\" transform=\"translate("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/"\"[>A-z0-9 =#\",:\.-]*"/", NULL },"/ | sed y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/ | sed s/")"/"}"/ | sed s/"[{}, 0-9]*SCALE([-, 1]*) TRANSLATE([-,0-9 .]*) TRANSLATE("/", {"/ | sed s/"\.000000"// | sed s/"\.000000"// | sed s/")"/"}"/ > level2_sprites_raw.h
 
 Track Points:
 grep "rect id=\"track_point\"" level0_svg.svg |  sed s/" *<[A-z0F =#:\"]*x=\""/"  {"/ | sed s/"\" y=\""/", "/ | sed s/"\" width[A-z0-9=<>/ \"]*"/"},"/
