@@ -41,6 +41,7 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_num_car_locations = sizeof(level1_car_locations) / sizeof(GPoint);
       break;
     default:
+      current_level = NULL;
       break;
   }
 
@@ -70,13 +71,13 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
     current_level->finish_group->finish_box_4.sprite = pge_sprite_create(current_level->finish_group->finish_box_4.offset, current_level->finish_group->finish_box_4.resource_id);
     current_level->finish_group->light_signal.sprite = pge_sprite_create(current_level->finish_group->light_signal.offset, current_level->finish_group->light_signal.resource_id);
 
+    for (int pos = 0; pos < NUM_CARS_TOTAL; pos++) {
+      current_level->finish_order[pos] = NULL;
+    }
+
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Level %d initialized", level);
   } else {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid level %d. Could not initialize", level);
-  }
-
-  for (int pos = 0; pos < NUM_CARS_TOTAL; pos++) {
-    current_level->finish_order[pos] = NULL;
   }
 }
 

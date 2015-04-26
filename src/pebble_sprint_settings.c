@@ -58,10 +58,10 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   switch (cell_index->row) {
     case 0:
-      menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 0 ? "Selected" : NULL, "UP=CW, DOWN=CCW", s_button_actions_index == 0 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
+      menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 0 ? "Selected" : NULL, "UP=CCW, DOWN=CW", s_button_actions_index == 0 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
       break;
     case 1:
-      menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 1 ? "Selected" : NULL, "UP=CCW, DOWN=CW", s_button_actions_index == 1 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
+      menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 1 ? "Selected" : NULL, "UP=CW, DOWN=CCW", s_button_actions_index == 1 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
       break;
   }
 }
@@ -70,11 +70,11 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
   // Use the row to specify which item will receive the select action
   switch (cell_index->row) {
     case 0:
-      set_button_actions(BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN);
+      set_button_actions(BUTTON_ID_DOWN, BUTTON_ID_SELECT, BUTTON_ID_UP);
       s_button_actions_index = cell_index->row;
       break;
     case 1:
-      set_button_actions(BUTTON_ID_DOWN, BUTTON_ID_SELECT, BUTTON_ID_UP);
+      set_button_actions(BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN);
       s_button_actions_index = cell_index->row;
       break;
   }
@@ -130,7 +130,7 @@ void settings_window_push() {
 
   if (!s_button_actions_set) {
     s_button_actions_index = 0;
-    set_button_actions(BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN);
+    set_button_actions(BUTTON_ID_DOWN, BUTTON_ID_SELECT, BUTTON_ID_UP);
   }
 
   // Create Window

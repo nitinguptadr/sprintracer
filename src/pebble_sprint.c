@@ -34,7 +34,7 @@ static GRect s_game_bounds;
 
 static bool s_title_pushed = false;
 
-
+//#define DEBUG
 #ifdef DEBUG
 #define NUM_LAPS_DEFAULT 1
 #else
@@ -70,6 +70,13 @@ typedef enum {
   RACE_STATUS_ALL_FINISHED,
 } RaceStatus;
 static RaceStatus s_race_status = RACE_STATUS_NONE;
+
+typedef enum {
+  GAME_MODE_NONE,
+  GAME_MODE_SINGLE_RACE,
+  GAME_MODE_TOURNAMENT,
+} GameMode;
+static GameMode s_game_mode = GAME_MODE_NONE;
 
 PGESprite* bg_level = NULL;
 
@@ -287,11 +294,12 @@ static void update_countdown(void *context) {
   s_countdown--;
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Starting Race in %d seconds", s_countdown);
 
+  update_signal(s_countdown);
   if (s_countdown > 0) {
     s_countdown_timer = app_timer_register(1000, update_countdown, NULL);
+  } else {
+    s_countdown_timer = NULL;
   }
-
-  update_signal(s_countdown);
 }
 
 static void logic() {
@@ -348,7 +356,6 @@ void draw(GContext *ctx) {
 
 static void click(int button_id, bool long_click) {
   ButtonActionIds *button_actions = get_button_actions();
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Test 1");
 
   if (button_id == button_actions->counterclockwise)
   {
@@ -359,10 +366,24 @@ static void click(int button_id, bool long_click) {
   } else if (button_id == button_actions->select) {
     if (s_race_status == RACE_STATUS_NONE) {
       s_race_status = RACE_STATUS_COUNTDOWN;
+    } else if ((s_race_status == RACE_STATUS_ALL_FINISHED) && (s_game_mode == GAME_MODE_TOURNAMENT)) {
+      LevelNumId current_level = level_get_current();
+      current_level = (current_level + 1) % LEVEL_COUNT;
+      if (current_level == LEVEL0_ID) {
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Ending Tournament");
+        game_deinit();
+      } else {
+        level_set_current(current_level);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Starting next level %d", current_level);
+        game_init();
+      }
+    } else if (s_race_status == RACE_STATUS_ALL_FINISHED) {
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Ending Single Race");
+      game_deinit();
     }
-  #ifdef DEBUG
+#ifdef DEBUG
     car_user->moving = !car_user->moving;
-  #endif
+#endif
   } else if (button_id == button_actions->clockwise) {
     if (s_race_status == RACE_STATUS_STARTED) {
       direction = ROTATION_CW;
@@ -405,6 +426,12 @@ void game_deinit() {
 
   // Destroy all game resources
   pge_finish();
+
+  if (s_game_window && window_stack_contains_window(s_game_window)) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Explicitly removing game window from stack");
+    window_stack_remove(s_game_window, false);
+    s_game_window = NULL;
+  }
 }
 
 extern int get_car_selection(int index);
@@ -498,18 +525,23 @@ void game_init() {
 /******************************** Title Window *****************************************/
 extern void level_selector_window_push();
 extern void settings_window_push();
+extern void car_selector_window_push();
 
 void title_click(int button_id, bool long_click) {
   switch(button_id) {
     case BUTTON_ID_UP:
+      s_game_mode = GAME_MODE_SINGLE_RACE;
       level_selector_window_push();
       break;
 
     case BUTTON_ID_SELECT:
-      level_selector_window_push();
+      s_game_mode = GAME_MODE_TOURNAMENT;
+      level_set_current(LEVEL0_ID);
+      car_selector_window_push();
       break;
 
     case BUTTON_ID_DOWN:
+      s_game_mode = GAME_MODE_NONE;
       settings_window_push();
       break;
   }

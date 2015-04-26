@@ -61,6 +61,7 @@
       {  "type": "png",  "name": "CAR_LINE",  "file": "images/car_line.png"},
       {  "type": "png",  "name": "PEBBLE_SPRINT",  "file": "images/pebble_sprint.png"},
       {  "type": "png",  "name": "SETTINGS",  "file": "images/settings.png"},
+      {  "type": "png",  "name": "TOURNAMENT",  "file": "images/tournament.png"},
       {  "type": "png",  "name": "CONTROLS0",  "file": "images/shrub_8.png"},
       {  "type": "png",  "name": "SINGLE_RACE",  "file": "images/single_race.png"},
       {  "type": "png",  "name": "LEVEL_0",  "file": "images/level0_small.png"},

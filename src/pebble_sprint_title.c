@@ -8,6 +8,7 @@ static GBitmap *s_car_line;
 static GBitmap *s_single_race;
 static GBitmap *s_pebble_sprint;
 static GBitmap *s_settings;
+static GBitmap *s_tournament;
 static bool s_title_loaded = false;
 static PGEClickHandler *s_click_handler;
 
@@ -47,10 +48,15 @@ static void draw_title(Layer *layer, GContext *ctx) {
 
   bounds = gbitmap_get_bounds(s_settings);
   graphics_draw_bitmap_in_rect(ctx, s_settings, GRect(65, 142, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_tournament);
+  graphics_draw_bitmap_in_rect(ctx, s_tournament, GRect(125, 45, bounds.size.w, bounds.size.h));
 }
 
 /********************************* Window *************************************/
 static void window_appear(Window *window) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Appearing Title Screen... %p", window);
+
   game_deinit();
 
   Layer *window_layer = window_get_root_layer(window);
@@ -68,51 +74,66 @@ static void window_appear(Window *window) {
   if (!s_car_line) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_car_line");
   }
+
   s_single_race = gbitmap_create_with_resource(RESOURCE_ID_SINGLE_RACE);
   if (!s_single_race) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_single_race");
   }
+
   s_pebble_sprint = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_SPRINT);
   if (!s_pebble_sprint) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_pebble_sprint");
   }
+
   s_settings = gbitmap_create_with_resource(RESOURCE_ID_SETTINGS);
-  if (!s_pebble_sprint) {
+  if (!s_settings) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_settings");
   }
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Appear Title Screen");
+  s_tournament = gbitmap_create_with_resource(RESOURCE_ID_TOURNAMENT);
+  if (!s_tournament) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_tournament");
+  }
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Appear Title Screen %p", window);
 }
 
 static void window_disappear(Window *window) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Disappearing Title Screen... %p", window);
+
   layer_remove_from_parent(s_canvas);
   layer_destroy(s_canvas);
   s_canvas = NULL;
 
   if (s_car_line) {
     gbitmap_destroy(s_car_line);
+    s_car_line = NULL;
   }
   if (s_single_race) {
     gbitmap_destroy(s_single_race);
+    s_single_race = NULL;
   }
   if (s_pebble_sprint) {
     gbitmap_destroy(s_pebble_sprint);
+    s_pebble_sprint = NULL;
   }
   if (s_settings) {
     gbitmap_destroy(s_settings);
+    s_settings = NULL;
   }
-  s_car_line = NULL;
-  s_single_race = NULL;
-  s_pebble_sprint = NULL;
-  s_settings = NULL;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Disappear Title Screen");
+  if (s_tournament) {
+    gbitmap_destroy(s_tournament);
+    s_tournament = NULL;
+  }
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Disappear Title Screen %p", window);
 }
 
 static void window_unload(Window *window) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Unloading Title Screen %p", window);
   // Finally
   window_destroy(window);
   s_window = NULL;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Unloaded Title Screen");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Unloaded Title Screen %p", window);
 }
 
 /********************************* Public *************************************/

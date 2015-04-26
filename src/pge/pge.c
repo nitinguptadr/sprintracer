@@ -117,6 +117,7 @@ static void game_window_load(Window *window) {
 
   // Register new Timer to begin frame rendering loop
   s_render_timer = app_timer_register(1000 / s_framerate, frame_timer_handler, NULL);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Game window loaded %p", window);
 }
 
 static void game_window_unload(Window *window) {
@@ -125,7 +126,7 @@ static void game_window_unload(Window *window) {
   bitmap_layer_destroy(s_bg_layer);
   gbitmap_destroy(s_bg_bitmap);
   s_bg_bitmap = NULL;
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Game window unloaded");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Game window unloaded %p", window);
 }
 
 static void frame_timer_handler(void *context) {

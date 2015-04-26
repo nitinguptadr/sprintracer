@@ -138,8 +138,6 @@ static void window_unload(Window *window) {
 
 /********************************* Public *************************************/
 void car_selector_window_push() {
-  game_deinit();
-
   // Create Window
   if(!s_window) {
     s_window = window_create();
