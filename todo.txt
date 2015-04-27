@@ -8,18 +8,18 @@ Logic:
 --add starting car locations and angles
 --level selector
 --car selector
+--Refresh title screen
+--tournament mode
 Weapons on user car
 Weapons on opponent car
 Oil slick spots show up randomly
 add speed boosts on the road
--Refresh title screen
-tournament mode
 Add animation to title screen
 
 Settings:
 --------
-difficulty setting?? -- slower on grass
 --controls settings window and logic
+difficulty setting?? -- slower on grass
 number of laps
 add pngs for control settings rather than just text
 
@@ -27,23 +27,23 @@ Status Bar:
 ----------
 --status bar update of countdown
 --status bar update of user placement
-status bar update of end of race
+--status bar update of end of race
 status bar update of current weapons
 status bar update of speed??
 
 Graphics:
 --------
 Oil slick
-Shrink vertical/horizontal track (2 horiz, 2 vert)
-Cross track (1)
-Squeeze track
 Open/close gate
 Fire animation of exploding car
-checkpoint track
 speed boost
 slant tracks left/right/up/down (100 x 100)
+split track
+--Shrink vertical/horizontal track (2 horiz, 2 vert)
+--Cross track (1)
+--Squeeze track - done with shrink 2 shrink tracks
+--checkpoint track
 --slant tracks left/right/up/down (50 x 100 and 100 x 50) - accomplished via 90 degree existing curves
-X track (100 x 100)
 
 
 

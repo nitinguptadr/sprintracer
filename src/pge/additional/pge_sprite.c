@@ -1,7 +1,7 @@
 #include "pge_sprite.h"
 #include "pge_collision.h"
 
-GBitmap *s_bitmaps[60] = {0};
+GBitmap *s_bitmaps[70] = {0};
 
 PGESprite* pge_sprite_create(GPoint position, int initial_resource_id) {
   PGESprite *this = malloc(sizeof(PGESprite));

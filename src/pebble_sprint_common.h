@@ -51,6 +51,7 @@ typedef struct {
   unsigned int lap;               // Current lap number of car
   bool crossing_finish;           // Stores whether crossing finish line or not
   unsigned int placement;
+  unsigned int score;
   unsigned int current_checkpoint;
 } Car;
 
@@ -61,6 +62,7 @@ typedef struct {
 } ButtonActionIds;
 
 extern void set_button_actions(int cw, int select, int ccw);
+extern void update_tournament_score(Car* car_ptr);
 
 extern void game_init();
 extern void game_deinit();

@@ -483,6 +483,7 @@ void update_placements(Car *car_ptr) {
     if (current_level->finish_order[pos] == NULL) {
       current_level->finish_order[pos] = car_ptr;
       car_ptr->placement = pos + 1;
+      update_tournament_score(car_ptr);
       break;
     }
   }
