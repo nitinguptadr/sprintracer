@@ -111,6 +111,9 @@ static void window_load(Window *window) {
     .select_click = menu_select_callback,
   });
 
+  menu_layer_set_normal_colors(s_menu_layer, GColorJaegerGreen, GColorWhite);
+  menu_layer_set_highlight_colors(s_menu_layer, GColorBlack, GColorWhite);
+
   for (int index = RESOURCE_ID_CAR_RED; index < RESOURCE_ID_CAR_RED + NUM_MENU_ICONS; index++) {
     s_car_bitmaps[index - RESOURCE_ID_CAR_RED] = gbitmap_create_with_resource(index);
   }

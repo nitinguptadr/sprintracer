@@ -557,7 +557,10 @@ static void click(int button_id, bool long_click) {
       game_deinit();
     }
 #ifdef DEBUG
-    //car_user->moving = !car_user->moving;
+    car_user->moving = !car_user->moving;
+    car_opp1->moving = !car_opp1->moving;
+    car_opp2->moving = !car_opp2->moving;
+    car_opp3->moving = !car_opp3->moving;
 #endif
   }
 //#ifdef DEBUG

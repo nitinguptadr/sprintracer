@@ -9,6 +9,7 @@ static GBitmap *s_single_race;
 static GBitmap *s_sprintracer;
 static GBitmap *s_settings;
 static GBitmap *s_tournament;
+static GBitmap *s_bush;
 static bool s_title_loaded = false;
 static PGEClickHandler *s_click_handler;
 
@@ -38,7 +39,7 @@ static void draw_title(Layer *layer, GContext *ctx) {
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   GRect bounds = gbitmap_get_bounds(s_car_line);
-  graphics_draw_bitmap_in_rect(ctx, s_car_line, GRect(1, 17, bounds.size.w, bounds.size.h));
+  graphics_draw_bitmap_in_rect(ctx, s_car_line, GRect(4, 2, bounds.size.w, bounds.size.h));
 
   bounds = gbitmap_get_bounds(s_single_race);
   graphics_draw_bitmap_in_rect(ctx, s_single_race, GRect(65, 10, bounds.size.w, bounds.size.h));
@@ -51,6 +52,11 @@ static void draw_title(Layer *layer, GContext *ctx) {
 
   bounds = gbitmap_get_bounds(s_tournament);
   graphics_draw_bitmap_in_rect(ctx, s_tournament, GRect(125, 45, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_bush);
+  graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(25, 10, bounds.size.w, bounds.size.h));
+  graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(5, 133, bounds.size.w, bounds.size.h));
+  graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(35, 115, bounds.size.w, bounds.size.h));
 }
 
 /********************************* Window *************************************/
@@ -95,6 +101,11 @@ static void window_appear(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_tournament");
   }
 
+  s_bush = gbitmap_create_with_resource(RESOURCE_ID_VERT_BUSH_35);
+  if (!s_bush) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_bush");
+  }
+
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Appear Title Screen %p", window);
 }
 
@@ -124,6 +135,10 @@ static void window_disappear(Window *window) {
   if (s_tournament) {
     gbitmap_destroy(s_tournament);
     s_tournament = NULL;
+  }
+  if (s_bush) {
+    gbitmap_destroy(s_bush);
+    s_bush = NULL;
   }
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Disappear Title Screen %p", window);
 }
