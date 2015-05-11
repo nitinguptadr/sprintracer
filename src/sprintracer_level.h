@@ -2,7 +2,7 @@
 
 #include <pebble.h>
 
-#include "pebble_sprint_common.h"
+#include "sprintracer_common.h"
 #include "pge/additional/pge_sprite.h"
 
 typedef struct {

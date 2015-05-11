@@ -1,12 +1,12 @@
-#include "pebble_sprint_title.h"
-#include "pebble_sprint_common.h"
+#include "sprintracer_title.h"
+#include "sprintracer_common.h"
 
 // UI
 static Window *s_window;
 static Layer *s_canvas;
 static GBitmap *s_car_line;
 static GBitmap *s_single_race;
-static GBitmap *s_pebble_sprint;
+static GBitmap *s_sprintracer;
 static GBitmap *s_settings;
 static GBitmap *s_tournament;
 static bool s_title_loaded = false;
@@ -43,8 +43,8 @@ static void draw_title(Layer *layer, GContext *ctx) {
   bounds = gbitmap_get_bounds(s_single_race);
   graphics_draw_bitmap_in_rect(ctx, s_single_race, GRect(65, 10, bounds.size.w, bounds.size.h));
 
-  bounds = gbitmap_get_bounds(s_pebble_sprint);
-  graphics_draw_bitmap_in_rect(ctx, s_pebble_sprint, GRect(22, 60, bounds.size.w, bounds.size.h));
+  bounds = gbitmap_get_bounds(s_sprintracer);
+  graphics_draw_bitmap_in_rect(ctx, s_sprintracer, GRect(22, 60, bounds.size.w, bounds.size.h));
 
   bounds = gbitmap_get_bounds(s_settings);
   graphics_draw_bitmap_in_rect(ctx, s_settings, GRect(65, 142, bounds.size.w, bounds.size.h));
@@ -80,9 +80,9 @@ static void window_appear(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_single_race");
   }
 
-  s_pebble_sprint = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_SPRINT);
-  if (!s_pebble_sprint) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_pebble_sprint");
+  s_sprintracer = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_SPRINT);
+  if (!s_sprintracer) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_sprintracer");
   }
 
   s_settings = gbitmap_create_with_resource(RESOURCE_ID_SETTINGS);
@@ -113,9 +113,9 @@ static void window_disappear(Window *window) {
     gbitmap_destroy(s_single_race);
     s_single_race = NULL;
   }
-  if (s_pebble_sprint) {
-    gbitmap_destroy(s_pebble_sprint);
-    s_pebble_sprint = NULL;
+  if (s_sprintracer) {
+    gbitmap_destroy(s_sprintracer);
+    s_sprintracer = NULL;
   }
   if (s_settings) {
     gbitmap_destroy(s_settings);
@@ -148,7 +148,9 @@ void title_push(PGEClickHandler *click_handler) {
   if(!s_window) {
     s_window = window_create();
     window_set_click_config_provider(s_window, click_config_provider);
+#ifdef PBL_PLATFORM_APLITE
     window_set_fullscreen(s_window, true);
+#endif
     window_set_window_handlers(s_window, (WindowHandlers) {
       .unload = window_unload,
       .appear = window_appear,

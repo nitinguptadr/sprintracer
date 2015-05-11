@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pebble_sprint_level.h"
+#include "sprintracer_level.h"
 
 #define LEVEL2_BOUNDS GRect(0, 0, SCREEN_RES_COLS*4, SCREEN_RES_ROWS*4)
 

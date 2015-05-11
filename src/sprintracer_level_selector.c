@@ -1,5 +1,5 @@
-#include "pebble_sprint_title.h"
-#include "pebble_sprint_level.h"
+#include "sprintracer_title.h"
+#include "sprintracer_level.h"
 
 // UI
 static Window *s_window;
@@ -121,7 +121,9 @@ void level_selector_window_push() {
   if(!s_window) {
     s_window = window_create();
     window_set_click_config_provider(s_window, click_config_provider);
+#ifdef PBL_PLATFORM_APLITE
     window_set_fullscreen(s_window, true);
+#endif
     window_set_window_handlers(s_window, (WindowHandlers) {
       .load = window_load,
       .unload = window_unload

@@ -1,8 +1,8 @@
 {
   "uuid": "3a2ae20a-dbb6-4326-886e-8425c33714b0",
-  "shortName": "pebble-sprint",
-  "longName": "pebble-sprint",
-  "companyName": "MakeAwesomeHappen",
+  "shortName": "Sprint Racer",
+  "longName": "Sprint Racer",
+  "companyName": "Nitin Gupta",
   "versionCode": 1,
   "versionLabel": "1.0",
   "watchapp": {

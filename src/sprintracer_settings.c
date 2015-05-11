@@ -1,5 +1,5 @@
-#include "pebble_sprint_title.h"
-#include "pebble_sprint_level.h"
+#include "sprintracer_title.h"
+#include "sprintracer_level.h"
 #include "pge/additional/pge_title.h"
 
 // UI
@@ -157,7 +157,9 @@ void settings_window_push() {
   // Create Window
   if(!s_window) {
     s_window = window_create();
+#ifdef PBL_PLATFORM_APLITE
     window_set_fullscreen(s_window, true);
+#endif
     window_set_window_handlers(s_window, (WindowHandlers) {
       .load = window_load,
       .unload = window_unload

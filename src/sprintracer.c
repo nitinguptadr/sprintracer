@@ -3,9 +3,9 @@
 #include <inttypes.h>
 #include <math.h>
 
-#include "pebble_sprint_common.h"
-#include "pebble_sprint_level.h"
-#include "pebble_sprint_title.h"
+#include "sprintracer_common.h"
+#include "sprintracer_level.h"
+#include "sprintracer_title.h"
 
 #include "pge/pge.h"
 #include "pge/additional/pge_sprite.h"
