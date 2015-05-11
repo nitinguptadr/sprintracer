@@ -38,7 +38,7 @@ static void draw_title(Layer *layer, GContext *ctx) {
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   GRect bounds = gbitmap_get_bounds(s_car_line);
-  graphics_draw_bitmap_in_rect(ctx, s_car_line, GRect(1, 5, bounds.size.w, bounds.size.h));
+  graphics_draw_bitmap_in_rect(ctx, s_car_line, GRect(1, 17, bounds.size.w, bounds.size.h));
 
   bounds = gbitmap_get_bounds(s_single_race);
   graphics_draw_bitmap_in_rect(ctx, s_single_race, GRect(65, 10, bounds.size.w, bounds.size.h));
@@ -80,7 +80,7 @@ static void window_appear(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_single_race");
   }
 
-  s_sprintracer = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_SPRINT);
+  s_sprintracer = gbitmap_create_with_resource(RESOURCE_ID_TITLE_LOGO);
   if (!s_sprintracer) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_sprintracer");
   }
