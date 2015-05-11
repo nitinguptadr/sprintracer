@@ -34,7 +34,7 @@ static GRect s_game_bounds;
 
 static bool s_title_pushed = false;
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #define NUM_LAPS_DEFAULT 1
 #else
