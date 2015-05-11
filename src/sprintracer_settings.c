@@ -2,6 +2,9 @@
 #include "sprintracer_level.h"
 #include "pge/additional/pge_title.h"
 
+#define VERSION_STR "Version 1.0"
+#define AUTHOR_STR "Author: Nitin Gupta"
+
 // UI
 static Window *s_window;
 static MenuLayer *s_menu_layer;
@@ -12,10 +15,10 @@ static int s_button_actions_index = 0;
 
 static void settings_window_pop();
 
-#define NUM_MENU_SECTIONS     2
-#define NUM_CONTROLS_SETTINGS 2
-#define NUM_FIRST_MENU_ITEMS  NUM_CONTROLS_SETTINGS 
-#define NUM_HIGH_SCORE_ITEMS 1
+#define NUM_MENU_SECTIONS     5
+#define NUM_CONTROLS_ITEMS    2
+#define NUM_HIGH_SCORE_ITEMS  1
+#define NUM_ABOUT_ITEMS       1
 
 static GBitmap* s_controls_bitmaps[1];
 
@@ -37,9 +40,11 @@ static uint16_t menu_get_num_sections_callback(MenuLayer *menu_layer, void *data
 static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
   switch (section_index) {
     case 0:
-      return NUM_FIRST_MENU_ITEMS;
-    case 1:
+      return NUM_CONTROLS_ITEMS;
+    case 2:
       return NUM_HIGH_SCORE_ITEMS;
+    case 4:
+      return NUM_ABOUT_ITEMS;
     default:
       return 0;
   }
@@ -48,21 +53,27 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
   return MENU_CELL_BASIC_HEADER_HEIGHT;
 }
-
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
   // Determine which section we're working with
   switch (section_index) {
     case 0:
       // Draw title text in the section header
-      menu_cell_basic_header_draw(ctx, cell_layer, "CONTROLS");
+      menu_cell_basic_header_draw(ctx, cell_layer, "CONTROLS:");
       break;
-    case 1: {
-        // Draw title text in the section header
+    case 2: {
+      // Draw title text in the section header
       char buff[20];
       snprintf(buff, sizeof(buff), "HIGH SCORE: %d", pge_title_get_highscore());
       menu_cell_basic_header_draw(ctx, cell_layer, buff);
       break;
     }
+    case 4: 
+      // Draw title text in the section header
+      menu_cell_basic_header_draw(ctx, cell_layer, "ABOUT:");
+      break;
+    default:
+      menu_cell_basic_header_draw(ctx, cell_layer, "");
+      break;
   }
 }
 
@@ -78,8 +89,10 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
         menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 1 ? "Selected" : NULL, "UP=CW, DOWN=CCW", s_button_actions_index == 1 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
         break;
     }
-  } else if (cell_index->section == 1) {
+  } else if (cell_index->section == 2) {
     menu_cell_basic_draw(ctx, cell_layer, "Reset High Score?", "Press Select", NULL);
+  } else if (cell_index->section == 4) {
+    menu_cell_basic_draw(ctx, cell_layer, VERSION_STR, AUTHOR_STR, NULL);
   }
 }
 
@@ -96,7 +109,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
         s_button_actions_index = cell_index->row;
         break;
     }
-  } else if (cell_index->section == 1) {
+  } else if (cell_index->section == 2) {
     pge_title_set_highscore(0);
   }
   layer_mark_dirty(menu_layer_get_layer(menu_layer));
@@ -120,7 +133,10 @@ static void window_load(Window *window) {
     .select_click = menu_select_callback,
   });
 
-//  for (int index = RESOURCE_ID_CONTROLS0; index < RESOURCE_ID_CONTROLS0 + NUM_FIRST_MENU_ITEMS; index++) {
+  menu_layer_set_normal_colors(s_menu_layer, GColorJaegerGreen, GColorWhite);
+  menu_layer_set_highlight_colors(s_menu_layer, GColorBlack, GColorWhite);
+
+//  for (int index = RESOURCE_ID_CONTROLS0; index < RESOURCE_ID_CONTROLS0 + NUM_CONTROLS_ITEMS; index++) {
 //    s_controls_bitmaps[0] = gbitmap_create_with_resource(RESOURCE_ID_CONTROLS0);
 //  }
 
@@ -134,7 +150,7 @@ static void window_unload(Window *window) {
   // Destroy the menu layer
   menu_layer_destroy(s_menu_layer);
 
-//  for (int index = RESOURCE_ID_CONTROLS0; index < RESOURCE_ID_CONTROLS0 + NUM_FIRST_MENU_ITEMS; index++) {
+//  for (int index = RESOURCE_ID_CONTROLS0; index < RESOURCE_ID_CONTROLS0 + NUM_CONTROLS_ITEMS; index++) {
 //    gbitmap_destroy(s_controls_bitmaps[0]);
 //  }
 

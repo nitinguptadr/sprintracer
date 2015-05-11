@@ -6,7 +6,7 @@
 #define PGE_TITLE_LENGTH_MAX 32
 #define PGE_TITLE_ACTION_MAX 16
 
-#define PGE_TITLE_HIGHSCORE_PS_KEY 3427
+#define PGE_TITLE_HIGHSCORE_PS_KEY 3527
 
 /**
  * Show a pre-built title page with your game title and the background resource
