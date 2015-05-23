@@ -10,9 +10,9 @@ Logic:
 --car selector
 --Refresh title screen
 --tournament mode
-Weapons on user car
+--Weapons on user car
 Weapons on opponent car
-Oil slick spots show up randomly
+--Oil slick spots show up randomly
 add speed boosts on the road
 Add animation to title screen
 

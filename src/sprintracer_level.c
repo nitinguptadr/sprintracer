@@ -17,6 +17,75 @@ static uint32_t current_num_track_points0 = 0;
 static uint32_t current_num_checkpoints = 0;
 static uint32_t current_num_car_locations = 0;
 
+
+/***************************** OILSLICK LOGIC *****************************/
+typedef enum {
+  OILSLICK_STATE_NONE,    // No OILSLICK on screen
+  OILSLICK_STATE_PRESENT, // OILSLICK on screen
+} OilslickState;
+static OilslickState s_oilslick_state = OILSLICK_STATE_NONE;
+static PGESprite *s_oilslick_sprite;
+static uint16_t s_oilslick_index = 0;
+static AppTimer *s_oilslick_timer;
+static int s_oilslick_car_angle;
+static uint32_t s_oilslick_counter = 0;
+
+static void oilslick_timer_handler(void *context) {
+  Car *car_ptr = (Car *)context;
+  if (s_oilslick_counter >= 1000) {
+    // Restore to original angle and set the car to move
+    car_ptr->angle = s_oilslick_car_angle;
+    pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
+    car_ptr->moving = true;
+  } else {
+    car_ptr->angle = (car_ptr->angle + 60) % 360;
+    pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
+    s_oilslick_counter += 50;
+    s_oilslick_timer = app_timer_register(50, oilslick_timer_handler, context);
+  }
+}
+
+static void oilslick_reset_pos(GPoint offset) {
+  // Place at the middle of a track location
+  // Choose track index with a little randomization based on the offset
+  s_oilslick_index = (s_oilslick_index + offset.x + offset.y) % current_num_tracks;
+  GPoint oilslick_pos = pge_sprite_get_position(current_level->tracks[s_oilslick_index].sprite);
+  oilslick_pos.x += 25;
+  oilslick_pos.y += 25;
+  s_oilslick_state = OILSLICK_STATE_NONE;
+  pge_sprite_set_position(s_oilslick_sprite, oilslick_pos);
+}
+
+// Show the oilslick on screen
+static void oilslick_show(GPoint offset) {
+  if (!current_level) {
+    return;
+  }
+
+  oilslick_reset_pos(offset);
+  s_oilslick_state = OILSLICK_STATE_PRESENT;
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Showing oilslick %d %d", s_oilslick_sprite->position.x, s_oilslick_sprite->position.y);
+}
+
+void oilslick_update(Car *car_ptr) {
+  if ((!current_level) || (!car_ptr->moving) || (s_oilslick_state == OILSLICK_STATE_NONE)) {
+    return;
+  }
+
+  GRect oilslick_bounds = pge_sprite_get_bounds(s_oilslick_sprite);
+  bool collided = (level_collision_cars(oilslick_bounds, car_ptr) != DIRECTION_ALL);
+  if (collided) {
+    car_ptr->moving = false;
+    s_oilslick_state = OILSLICK_STATE_NONE;
+    s_oilslick_car_angle = car_ptr->angle;
+    s_oilslick_counter = 0;
+    s_oilslick_timer = app_timer_register(50, oilslick_timer_handler, (void*)car_ptr);
+  }
+}
+
+
+/***************************** CANNONBALL LOGIC *****************************/
 typedef enum {
   CANNONBALL_STATE_NONE,    // No cannonball on screen
   CANNONBALL_STATE_PRESENT, // cannonball on screen, not picked up by a car
@@ -30,14 +99,20 @@ static GPoint s_cannonball_offset;
 static PGESprite *s_cannonball_sprite;
 static int32_t s_cannonball_angle = 0;
 static AppTimer *s_cannonball_timer;
+static uint16_t s_cannonball_index = 0;
 
 static void cannonball_timer_handler(void *context) {
   Car *car_ptr = (Car *)context;
   car_ptr->moving = true;
 }
 
-static void cannonball_reset_pos() {
-  GPoint cannonball_pos = current_level->car_locations[0]; // Place at the same location of where the car started
+static void cannonball_reset_pos(GPoint offset) {
+  // Place the star based on where the oil slick location is
+  s_cannonball_index = (s_cannonball_index + 5 + offset.x + offset.y) % current_num_tracks;
+  GPoint cannonball_pos = pge_sprite_get_position(current_level->tracks[s_cannonball_index].sprite);
+  // Offset a little to be in the center of the car
+  cannonball_pos.x += 25;
+  cannonball_pos.y += 25;
   s_cannonball_state = CANNONBALL_STATE_NONE;
   s_cannonball_angle = 0;
   pge_sprite_set_position(s_cannonball_sprite, cannonball_pos);
@@ -45,15 +120,15 @@ static void cannonball_reset_pos() {
 }
 
 // Show the cannonball on screen
-static void cannonball_show() {
+static void cannonball_show(GPoint offset) {
   if (!current_level) {
     return;
   }
 
-  cannonball_reset_pos();
+  cannonball_reset_pos(offset);
   s_cannonball_state = CANNONBALL_STATE_PRESENT;
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Showing cannon %d %d", s_cannonball_sprite->position.x, s_cannonball_sprite->position.y);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Showing cannonball %d %d", s_cannonball_sprite->position.x, s_cannonball_sprite->position.y);
 }
 
 #define CANNONBALL_SPEED_DEFAULT 6
@@ -63,7 +138,7 @@ void cannonball_fire(Car *car_ptr) {
     return;
   }
 
-  // Set initial cannonball position based on car's position and angle - center the cannon ball
+  // Set initial cannonball position based on car's position and angle - center the cannonball
   int32_t angle = DEG_TO_TRIG_ANGLE(car_ptr->angle);
   float sin_value = ((float)sin_lookup(angle)) / TRIG_MAX_RATIO;
   float cos_value = ((float)cos_lookup(angle)) / TRIG_MAX_RATIO;
@@ -79,8 +154,8 @@ void cannonball_fire(Car *car_ptr) {
   pge_sprite_set_position(s_cannonball_sprite, car_bounds.origin);
   s_cannonball_state = CANNONBALL_STATE_SHOT;
 
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Firing cannon %d %d", s_cannonball_sprite->position.x, s_cannonball_sprite->position.y);
-  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Firing cannon with offset %d %d", s_cannonball_offset.x, s_cannonball_offset.y);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Firing cannonball %d %d", s_cannonball_sprite->position.x, s_cannonball_sprite->position.y);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Firing cannonball with offset %d %d", s_cannonball_offset.x, s_cannonball_offset.y);
 }
 
 // Update current position of the cannonball
@@ -137,6 +212,11 @@ void cannonball_update(Car *user, Car *opp1, Car *opp2, Car *opp3) {
   }
 }
 
+uint8_t cannonball_get_count() {
+  return (s_cannonball_state == CANNONBALL_STATE_LOADED) ? 1 : 0;
+}
+
+/***************************** LEVEL LOGIC *****************************/
 // Initializes the current level - allocate all the memory for sprites
 void level_initialize(Layer *game_layer, LevelNumId level) {
   switch(level) {
@@ -209,9 +289,13 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_level->finish_order[pos] = NULL;
     }
 
-    // Initialize sprite for cannon ball to be located in the center of the last track piece
+    // Initialize sprite for cannonball to be located in the center of the last track piece
     s_cannonball_sprite = pge_sprite_create(GPointZero, RESOURCE_ID_CANNONBALL);
-    cannonball_reset_pos();
+    cannonball_reset_pos(GPointZero);
+
+    // Initialize sprite for oil slick
+    s_oilslick_sprite = pge_sprite_create(GPointZero, RESOURCE_ID_OILSLICK);
+    oilslick_reset_pos(GPointZero);
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Level %d initialized", level);
   } else {
@@ -354,7 +438,13 @@ void level_draw(GContext *ctx, GRect game_bounds) {
   // Draw cannonball based on state
   if ((s_cannonball_state == CANNONBALL_STATE_PRESENT) ||
       (s_cannonball_state == CANNONBALL_STATE_SHOT)) {
+    graphics_context_set_compositing_mode(ctx, GCompOpSet);
     pge_sprite_draw(s_cannonball_sprite, ctx);
+  }
+
+  if (s_oilslick_state == OILSLICK_STATE_PRESENT) {
+    graphics_context_set_compositing_mode(ctx, GCompOpSet);
+    pge_sprite_draw(s_oilslick_sprite, ctx);
   }
 }
 
@@ -622,7 +712,7 @@ void set_placement_position(Car *car_ptr) {
   // Update car to be in the correct position
   car_ptr->prev_angle = 0;
   car_ptr->angle = 0;
-  pge_sprite_set_rotation(car_ptr->sprite_color, car_ptr->angle);
+  pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 
   car_ptr->pos_x = finish_box_pos.x;
   car_ptr->pos_y = finish_box_pos.y;
@@ -724,17 +814,21 @@ static bool crossing_finish_line(Car *car_ptr) {
 void update_user_lap(Car *car_ptr) {
   bool current_state = crossing_finish_line(car_ptr);
   bool crossing_finish = ((current_state != car_ptr->crossing_finish) && (car_ptr->crossing_finish == false));
+  GPoint car_position = pge_sprite_get_position(car_ptr->sprite_color);
   if (crossing_finish &&
       (car_ptr->current_checkpoint >= current_num_checkpoints)) {
     car_ptr->lap++;
     car_ptr->current_checkpoint = 0; // Reset checkpoints for next lap
 
     if ((car_ptr->lap <= NUM_LAPS_DEFAULT) && (s_cannonball_state == CANNONBALL_STATE_NONE)) {
-      cannonball_show();
+      cannonball_show(car_position);
     }
+
+    oilslick_show(car_position);
+
   } else if (crossing_finish && (car_ptr->lap == 1)) {
     if ((car_ptr->lap <= NUM_LAPS_DEFAULT) && (s_cannonball_state == CANNONBALL_STATE_NONE)) {
-      cannonball_show();
+      cannonball_show(car_position);
     }
   }
   car_ptr->crossing_finish = current_state;

@@ -271,8 +271,13 @@ void update_status_layer() {
   } else if (s_race_status == RACE_STATUS_COUNTDOWN) {
     snprintf(s_status_text, sizeof(s_status_text), "Sprint in %d seconds", s_countdown);
   } else if (s_race_status == RACE_STATUS_STARTED) {
+    uint8_t cannonball_count = cannonball_get_count();
     int lap_disp = MIN(s_num_laps, car_user->lap); // Don't go past num laps
-    snprintf(s_status_text, sizeof(s_status_text), "Lap: %d of %d", lap_disp, s_num_laps);
+    if (cannonball_count > 0) {
+      snprintf(s_status_text, sizeof(s_status_text), "Lap: %d of %d - Fireball: %d", lap_disp, s_num_laps, cannonball_count);
+    } else {
+      snprintf(s_status_text, sizeof(s_status_text), "Lap: %d of %d", lap_disp, s_num_laps);
+    }
   } else if (((s_race_status == RACE_STATUS_USER_FINISHED) || (s_race_status == RACE_STATUS_ALL_FINISHED)) && (s_game_mode == GAME_MODE_TOURNAMENT)) {
     if (car_user->placement == 1) {
       snprintf(s_status_text, sizeof(s_status_text), "1st Place! Score: %d", s_scores[0]);
@@ -318,6 +323,11 @@ static void update_user_car() {
   update_car_position(car_user);
 
   cannonball_update(car_user, car_opp1, car_opp2, car_opp3);
+
+  oilslick_update(car_user);
+  oilslick_update(car_opp1);
+  oilslick_update(car_opp2);
+  oilslick_update(car_opp3);
 
   // Update what is visually seen on screen
   update_game_bounds(false);

@@ -35,9 +35,13 @@ typedef struct {
   int car_starting_angle;
 } LevelSpriteDetails;
 
+void oilslick_update(Car *car_ptr);
+
 void cannonball_fire(Car *car_ptr);
 
 void cannonball_update(Car *user, Car *opp1, Car *opp2, Car *opp3);
+
+uint8_t cannonball_get_count();
 
 // Intializes current level
 void level_initialize(Layer *game_layer, uint8_t level);

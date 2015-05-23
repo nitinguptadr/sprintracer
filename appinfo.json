@@ -46,6 +46,7 @@
       {  "type": "png",  "name": "LIGHT_SIGNAL_RED",  "file": "images/light_signal_red.png" },
       {  "type": "png",  "name": "LIGHT_SIGNAL_YELLOW",  "file": "images/light_signal_yellow.png" },
       {  "type": "png",  "name": "LIGHT_SIGNAL_NONE",  "file": "images/light_signal_none.png" },
+      {  "type": "png",  "name": "OILSLICK",  "file": "images/oilslick.png" },
       {  "type": "png",  "name": "SHRUB_8",  "file": "images/shrub_8.png" },
       {  "type": "png",  "name": "VERT_BUSH_35",  "file": "images/vert_bush_35.png" },
       {  "type": "png",  "name": "VERT_BUSH_4",  "file": "images/vert_bush_4.png" },
