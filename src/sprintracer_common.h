@@ -25,7 +25,9 @@
 #define CAR_PLACEMENT_UNSET 0
 
 //#define DEBUG
-#ifdef DEBUG
+
+#define DEBUGLAPS
+#ifdef DEBUGLAPS
 #define NUM_LAPS_DEFAULT 1
 #else
 #define NUM_LAPS_DEFAULT 3
@@ -35,6 +37,7 @@ typedef enum {
   LEVEL0_ID,
   LEVEL1_ID,
   LEVEL2_ID,
+  LEVEL3_ID,
 
   // Add new levels above this
   LEVEL_COUNT,

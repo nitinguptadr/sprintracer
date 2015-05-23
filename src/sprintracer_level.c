@@ -6,6 +6,7 @@
 #include "resources/images/level0_sprites.h"
 #include "resources/images/level1_sprites.h"
 #include "resources/images/level2_sprites.h"
+#include "resources/images/level3_sprites.h"
 
 static LevelNumId s_current_level = 0;
 static LevelSpriteDetails *current_level = NULL;
@@ -252,6 +253,17 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
       current_num_checkpoints = sizeof(level2_checkpoints) / sizeof(LevelSpriteLocation);
       current_num_track_points0 = sizeof(level2_track_points0) / sizeof(GPoint);
       current_num_car_locations = sizeof(level2_car_locations) / sizeof(GPoint);
+      break;
+    case LEVEL3_ID:
+      layer_set_frame(game_layer, LEVEL3_BOUNDS);
+      current_level = &level3_details;
+      current_num_scenery = sizeof(level3_scenery) / sizeof(LevelSpriteLocation);
+      current_num_sprites = sizeof(level3_sprites) / sizeof(LevelSpriteLocation);
+      current_num_walls = sizeof(level3_walls) / sizeof(LevelSpriteLocation);
+      current_num_tracks = sizeof(level3_tracks) / sizeof(LevelSpriteLocation);
+      current_num_checkpoints = sizeof(level3_checkpoints) / sizeof(LevelSpriteLocation);
+      current_num_track_points0 = sizeof(level3_track_points0) / sizeof(GPoint);
+      current_num_car_locations = sizeof(level3_car_locations) / sizeof(GPoint);
       break;
     default:
       current_level = NULL;

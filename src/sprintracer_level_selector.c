@@ -25,6 +25,9 @@ static void update_level_image(LevelNumId current_level) {
     case LEVEL2_ID:
       resource_id = RESOURCE_ID_LEVEL_2;
       break;
+    case LEVEL3_ID:
+      resource_id = RESOURCE_ID_LEVEL_3;
+      break;
     default:
       resource_id = RESOURCE_ID_LEVEL_0;
       break;

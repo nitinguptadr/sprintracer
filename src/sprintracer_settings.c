@@ -2,7 +2,7 @@
 #include "sprintracer_level.h"
 #include "pge/additional/pge_title.h"
 
-#define VERSION_STR "Version 1.1"
+#define VERSION_STR "Version 1.2"
 #define AUTHOR_STR "Author: Nitin Gupta"
 
 // UI

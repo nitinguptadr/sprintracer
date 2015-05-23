@@ -4,7 +4,7 @@
   "longName": "Sprint Racer",
   "companyName": "Nitin Gupta",
   "versionCode": 1,
-  "versionLabel": "1.1",
+  "versionLabel": "1.2",
   "watchapp": {
     "watchface": false
   },
@@ -79,7 +79,8 @@
       {  "type": "png",  "name": "SINGLE_RACE",  "file": "images/single_race.png"},
       {  "type": "png",  "name": "LEVEL_0",  "file": "images/level0_small.png"},
       {  "type": "png",  "name": "LEVEL_1",  "file": "images/level1_small.png"},
-      {  "type": "png",  "name": "LEVEL_2",  "file": "images/level2_small.png"}
+      {  "type": "png",  "name": "LEVEL_2",  "file": "images/level2_small.png"},
+      {  "type": "png",  "name": "LEVEL_3",  "file": "images/level3_small.png"}
     ]
   },
   "targetPlatforms": [
