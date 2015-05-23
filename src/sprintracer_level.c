@@ -38,8 +38,6 @@ static void cannonball_timer_handler(void *context) {
 
 static void cannonball_reset_pos() {
   GPoint cannonball_pos = current_level->car_locations[0]; // Place at the same location of where the car started
-  cannonball_pos.x += 25;
-  cannonball_pos.y += 25;
   s_cannonball_state = CANNONBALL_STATE_NONE;
   s_cannonball_angle = 0;
   pge_sprite_set_position(s_cannonball_sprite, cannonball_pos);
