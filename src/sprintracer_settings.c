@@ -13,14 +13,12 @@ static ButtonActionIds s_button_actions;
 static bool s_button_actions_set = false;
 static int s_button_actions_index = 0;
 
-static void settings_window_pop();
-
 #define NUM_MENU_SECTIONS     5
 #define NUM_CONTROLS_ITEMS    2
 #define NUM_HIGH_SCORE_ITEMS  1
 #define NUM_ABOUT_ITEMS       1
 
-static GBitmap* s_controls_bitmaps[1];
+//static GBitmap* s_controls_bitmaps[1];
 
 void set_button_actions(int cw, int select, int ccw) {
   s_button_actions.clockwise = cw;
@@ -184,9 +182,11 @@ void settings_window_push() {
   window_stack_push(s_window, true);
 }
 
+#if 0
 void settings_window_pop() {
   // Should self-destroy
   window_stack_pop(true);
   s_window = NULL;
 }
+#endif
 

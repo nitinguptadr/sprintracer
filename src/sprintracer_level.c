@@ -17,6 +17,129 @@ static uint32_t current_num_track_points0 = 0;
 static uint32_t current_num_checkpoints = 0;
 static uint32_t current_num_car_locations = 0;
 
+typedef enum {
+  CANNONBALL_STATE_NONE,    // No cannonball on screen
+  CANNONBALL_STATE_PRESENT, // cannonball on screen, not picked up by a car
+  CANNONBALL_STATE_LOADED,  // cannonball picked up by a car
+  CANNONBALL_STATE_SHOT,    // cannonball shot by a car
+} CannonballState;
+
+// Battle racing info
+static CannonballState s_cannonball_state = CANNONBALL_STATE_NONE;
+static GPoint s_cannonball_offset;
+static PGESprite *s_cannonball_sprite;
+static int32_t s_cannonball_angle = 0;
+static AppTimer *s_cannonball_timer;
+
+static void cannonball_timer_handler(void *context) {
+  Car *car_ptr = (Car *)context;
+  car_ptr->moving = true;
+}
+
+static void cannonball_reset_pos() {
+  GPoint cannonball_pos = current_level->car_locations[0]; // Place at the same location of where the car started
+  cannonball_pos.x += 25;
+  cannonball_pos.y += 25;
+  s_cannonball_state = CANNONBALL_STATE_NONE;
+  s_cannonball_angle = 0;
+  pge_sprite_set_position(s_cannonball_sprite, cannonball_pos);
+  pge_sprite_set_rotation(s_cannonball_sprite, DEG_TO_TRIG_ANGLE(s_cannonball_angle));
+}
+
+// Show the cannonball on screen
+static void cannonball_show() {
+  if (!current_level) {
+    return;
+  }
+
+  cannonball_reset_pos();
+  s_cannonball_state = CANNONBALL_STATE_PRESENT;
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Showing cannon %d %d", s_cannonball_sprite->position.x, s_cannonball_sprite->position.y);
+}
+
+#define CANNONBALL_SPEED_DEFAULT 6
+// Fire the cannonball if in appropriate state
+void cannonball_fire(Car *car_ptr) {
+  if (s_cannonball_state != CANNONBALL_STATE_LOADED) {
+    return;
+  }
+
+  // Set initial cannonball position based on car's position and angle - center the cannon ball
+  int32_t angle = DEG_TO_TRIG_ANGLE(car_ptr->angle);
+  float sin_value = ((float)sin_lookup(angle)) / TRIG_MAX_RATIO;
+  float cos_value = ((float)cos_lookup(angle)) / TRIG_MAX_RATIO;
+  float x_direction = CANNONBALL_SPEED_DEFAULT*sin_value;
+  float y_direction = -CANNONBALL_SPEED_DEFAULT*cos_value;
+
+  s_cannonball_offset.x = (int16_t)x_direction;
+  s_cannonball_offset.y = (int16_t)y_direction;
+
+  GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
+  car_bounds.origin.x += car_bounds.size.w / 2 + (2 * s_cannonball_offset.x);
+  car_bounds.origin.y += car_bounds.size.h / 2 + (2 * s_cannonball_offset.y);
+  pge_sprite_set_position(s_cannonball_sprite, car_bounds.origin);
+  s_cannonball_state = CANNONBALL_STATE_SHOT;
+
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Firing cannon %d %d", s_cannonball_sprite->position.x, s_cannonball_sprite->position.y);
+  //APP_LOG(APP_LOG_LEVEL_DEBUG, "Firing cannon with offset %d %d", s_cannonball_offset.x, s_cannonball_offset.y);
+}
+
+// Update current position of the cannonball
+void cannonball_update(Car *user, Car *opp1, Car *opp2, Car *opp3) {
+  if ((s_cannonball_state == CANNONBALL_STATE_NONE) ||
+      (s_cannonball_state == CANNONBALL_STATE_LOADED)) {
+    return;
+  }
+
+  // Only update position of cannonball if shot or present
+  GRect cannon_bounds = pge_sprite_get_bounds(s_cannonball_sprite);
+  bool overlap_user = (level_collision_cars(cannon_bounds, user) != DIRECTION_ALL);
+
+  if (s_cannonball_state == CANNONBALL_STATE_PRESENT) {
+    // Load up the cannonball
+    if (overlap_user) {
+      s_cannonball_state = CANNONBALL_STATE_LOADED;
+    }
+  } else if (s_cannonball_state == CANNONBALL_STATE_SHOT) {
+    bool overlap_opp1 = (level_collision_cars(cannon_bounds, opp1) != DIRECTION_ALL);
+    bool overlap_opp2 = (level_collision_cars(cannon_bounds, opp2) != DIRECTION_ALL);
+    bool overlap_opp3 = (level_collision_cars(cannon_bounds, opp3) != DIRECTION_ALL);
+    GPoint current_pos = pge_sprite_get_position(s_cannonball_sprite);
+
+    //APP_LOG(APP_LOG_LEVEL_DEBUG, "Cannonball bounds origin %d %d", cannon_bounds.origin.x, cannon_bounds.origin.y);
+    // Check if its colliding with anything - if not, then update its position
+    // If colliding with an opponent car, disable that car
+    if (level_collision_walls(cannon_bounds) != DIRECTION_ALL) {
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Cannonball hit walls %d %d", current_pos.x, current_pos.y);
+      s_cannonball_state = CANNONBALL_STATE_NONE;
+    } else if (overlap_opp1) {
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Cannonball hit opp1 %d %d", current_pos.x, current_pos.y);
+      s_cannonball_state = CANNONBALL_STATE_NONE;
+      opp1->moving = false;
+      s_cannonball_timer = app_timer_register(1000, cannonball_timer_handler, (void*)opp1);
+    } else if (overlap_opp2) {
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Cannonball hit opp2 %d %d", current_pos.x, current_pos.y);
+      s_cannonball_state = CANNONBALL_STATE_NONE;
+      s_cannonball_timer = app_timer_register(1000, cannonball_timer_handler, (void*)opp2);
+      opp2->moving = false;
+    } else if (overlap_opp3) {
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Cannonball hit opp3  %d %d", current_pos.x, current_pos.y);
+      s_cannonball_state = CANNONBALL_STATE_NONE;
+      s_cannonball_timer = app_timer_register(1000, cannonball_timer_handler, (void*)opp3);
+      opp3->moving = false;
+    } else {
+      current_pos.x += s_cannonball_offset.x;
+      current_pos.y += s_cannonball_offset.y;
+      pge_sprite_set_position(s_cannonball_sprite, current_pos);
+      s_cannonball_angle = (s_cannonball_angle + 30) % 360;   // simulate some rotatation
+      pge_sprite_set_rotation(s_cannonball_sprite, DEG_TO_TRIG_ANGLE(s_cannonball_angle));
+      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Cannonball position %d %d", current_pos.x, current_pos.y);
+    }
+  }
+}
+
+// Initializes the current level - allocate all the memory for sprites
 void level_initialize(Layer *game_layer, LevelNumId level) {
   switch(level) {
     case LEVEL0_ID:
@@ -83,9 +206,14 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
     current_level->finish_group->finish_box_4.sprite = pge_sprite_create(current_level->finish_group->finish_box_4.offset, current_level->finish_group->finish_box_4.resource_id);
     current_level->finish_group->light_signal.sprite = pge_sprite_create(current_level->finish_group->light_signal.offset, current_level->finish_group->light_signal.resource_id);
 
+    // Initialize the finish order of all cars
     for (int pos = 0; pos < NUM_CARS_TOTAL; pos++) {
       current_level->finish_order[pos] = NULL;
     }
+
+    // Initialize sprite for cannon ball to be located in the center of the last track piece
+    s_cannonball_sprite = pge_sprite_create(GPointZero, RESOURCE_ID_CANNONBALL);
+    cannonball_reset_pos();
 
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Level %d initialized", level);
   } else {
@@ -93,6 +221,7 @@ void level_initialize(Layer *game_layer, LevelNumId level) {
   }
 }
 
+// Deinitializes the current level - deallocate all the memory
 void level_deinitialize() {
   if (current_level) {
     for (uint32_t index = 0; index < current_num_scenery; index++) {
@@ -117,19 +246,24 @@ void level_deinitialize() {
     pge_sprite_destroy(current_level->finish_group->finish_box_3.sprite);
     pge_sprite_destroy(current_level->finish_group->finish_box_4.sprite);
     pge_sprite_destroy(current_level->finish_group->light_signal.sprite);
+
+    pge_sprite_destroy(s_cannonball_sprite);
   }
 
   current_level = NULL;
 }
 
+// Sets the current level
 void level_set_current(LevelNumId level) {
   s_current_level = level;
 }
 
+// Returns the current level
 LevelNumId level_get_current() {
   return s_current_level;
 }
 
+// Returns whether two rectangles overlap or not
 static bool grect_overlaps_grect(GRect rect1, GRect rect2) {
   // Check if any of the four corner points of rect2 are in rect 1
   GPoint check_point = rect2.origin;
@@ -153,74 +287,83 @@ static bool grect_overlaps_grect(GRect rect1, GRect rect2) {
 
 // Draw level based on the position of the car
 void level_draw(GContext *ctx, GRect game_bounds) {
-  if (current_level) {
-  #ifdef PBL_COLOR
-    graphics_context_set_fill_color(ctx, GColorJaegerGreen);
-    GRect fill_rect = GRect(0 - game_bounds.origin.x, 0 - game_bounds.origin.y, SCREEN_RES_COLS, SCREEN_RES_ROWS);
-    graphics_fill_rect(ctx, fill_rect, 0, GCornerNone);
-  #endif
+  if (!current_level) {
+    return;
+  }
+#ifdef PBL_COLOR
+  graphics_context_set_fill_color(ctx, GColorJaegerGreen);
+  GRect fill_rect = GRect(0 - game_bounds.origin.x, 0 - game_bounds.origin.y, SCREEN_RES_COLS, SCREEN_RES_ROWS);
+  graphics_fill_rect(ctx, fill_rect, 0, GCornerNone);
+#endif
 
-    // Only draw sprites that are on screen
-    graphics_context_set_compositing_mode(ctx, GCompOpSet);
-    for (uint32_t index = 0; index < current_num_scenery; index++) {
-      GRect sprite_bounds = pge_sprite_get_bounds(current_level->scenery[index].sprite);
-      if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-        pge_sprite_draw(current_level->scenery[index].sprite, ctx);
-      }
+  // Only draw sprites that are on screen
+  graphics_context_set_compositing_mode(ctx, GCompOpSet);
+  for (uint32_t index = 0; index < current_num_scenery; index++) {
+    GRect sprite_bounds = pge_sprite_get_bounds(current_level->scenery[index].sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->scenery[index].sprite, ctx);
     }
-    graphics_context_set_compositing_mode(ctx, GCompOpSet);
-    for (uint32_t index = 0; index < current_num_sprites; index++) {
-      GRect sprite_bounds = pge_sprite_get_bounds(current_level->sprites[index].sprite);
-      if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-        pge_sprite_draw(current_level->sprites[index].sprite, ctx);
-      }
+  }
+  graphics_context_set_compositing_mode(ctx, GCompOpSet);
+  for (uint32_t index = 0; index < current_num_sprites; index++) {
+    GRect sprite_bounds = pge_sprite_get_bounds(current_level->sprites[index].sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->sprites[index].sprite, ctx);
     }
-    for (uint32_t index = 0; index < current_num_walls; index++) {
-      GRect sprite_bounds = pge_sprite_get_bounds(current_level->walls[index].sprite);
-      if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-        pge_sprite_draw(current_level->walls[index].sprite, ctx);
-      }
+  }
+  for (uint32_t index = 0; index < current_num_walls; index++) {
+    GRect sprite_bounds = pge_sprite_get_bounds(current_level->walls[index].sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->walls[index].sprite, ctx);
     }
-    for (uint32_t index = 0; index < current_num_tracks; index++) {
-      GRect sprite_bounds = pge_sprite_get_bounds(current_level->tracks[index].sprite);
-      if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-        pge_sprite_draw(current_level->tracks[index].sprite, ctx);
-      }
+  }
+  for (uint32_t index = 0; index < current_num_tracks; index++) {
+    GRect sprite_bounds = pge_sprite_get_bounds(current_level->tracks[index].sprite);
+    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+      pge_sprite_draw(current_level->tracks[index].sprite, ctx);
     }
+  }
 
-    // Draw finish line
-    GRect sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_line.sprite);
-    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-      pge_sprite_draw(current_level->finish_group->finish_line.sprite, ctx);
-    }
+  // Draw finish line
+  GRect sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_line.sprite);
+  if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+    pge_sprite_draw(current_level->finish_group->finish_line.sprite, ctx);
+  }
 
-    // Draw finish boxes and street signal
-    graphics_context_set_compositing_mode(ctx, GCompOpAssign);
-    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_1.sprite);
-    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-      pge_sprite_draw(current_level->finish_group->finish_box_1.sprite, ctx);
-    }
-    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_2.sprite);
-    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-      pge_sprite_draw(current_level->finish_group->finish_box_2.sprite, ctx);
-    }
-    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_3.sprite);
-    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-      pge_sprite_draw(current_level->finish_group->finish_box_3.sprite, ctx);
-    }
-    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_4.sprite);
-    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-      pge_sprite_draw(current_level->finish_group->finish_box_4.sprite, ctx);
-    }
-    sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->light_signal.sprite);
-    if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
-      pge_sprite_draw(current_level->finish_group->light_signal.sprite, ctx);
-    }
+  // Draw finish boxes and street signal
+  graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+  sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_1.sprite);
+  if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+    pge_sprite_draw(current_level->finish_group->finish_box_1.sprite, ctx);
+  }
+  sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_2.sprite);
+  if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+    pge_sprite_draw(current_level->finish_group->finish_box_2.sprite, ctx);
+  }
+  sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_3.sprite);
+  if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+    pge_sprite_draw(current_level->finish_group->finish_box_3.sprite, ctx);
+  }
+  sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->finish_box_4.sprite);
+  if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+    pge_sprite_draw(current_level->finish_group->finish_box_4.sprite, ctx);
+  }
+  sprite_bounds = pge_sprite_get_bounds(current_level->finish_group->light_signal.sprite);
+  if (grect_overlaps_grect(fill_rect, sprite_bounds)) {
+    pge_sprite_draw(current_level->finish_group->light_signal.sprite, ctx);
+  }
+
+  // Draw cannonball based on state
+  if ((s_cannonball_state == CANNONBALL_STATE_PRESENT) ||
+      (s_cannonball_state == CANNONBALL_STATE_SHOT)) {
+    pge_sprite_draw(s_cannonball_sprite, ctx);
   }
 }
 
+// Check if a car collides with any walls or other sprites and return the allowable directions
+// i.e. up, down, left, and/or right
 #define CAR_BOUNDARY_OFFSET 3 // This is to offset from the corner point so the corner isn't calculated in the collision
-uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
+uint8_t level_collision_walls(GRect car_bounds) {
   GLine top =    { GPoint(car_bounds.origin.x + CAR_BOUNDARY_OFFSET, car_bounds.origin.y),
                    GPoint(car_bounds.origin.x + car_bounds.size.w - CAR_BOUNDARY_OFFSET, car_bounds.origin.y) };
   GLine left =   { GPoint(car_bounds.origin.x, car_bounds.origin.y + CAR_BOUNDARY_OFFSET),
@@ -389,7 +532,16 @@ uint8_t level_collision_walls(LevelNumId level, GRect car_bounds) {
   return allowable_directions;
 }
 
-uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent) {
+// Check if a car collides with another car and returns the allowable directions of movement
+// i.e. up, down, left, and/or right
+uint8_t level_collision_cars(GRect car_bounds, Car *car_ptr) {
+  uint8_t allowable_directions = DIRECTION_ALL;
+
+  if (!car_ptr->moving) {
+    return allowable_directions;
+  }
+
+  GRect car_bounds_opponent = pge_sprite_get_bounds(car_ptr->sprite_color);
   GLine top =    { GPoint(car_bounds.origin.x + CAR_BOUNDARY_OFFSET, car_bounds.origin.y),
                    GPoint(car_bounds.origin.x + car_bounds.size.w - 2*CAR_BOUNDARY_OFFSET, car_bounds.origin.y) };
   GLine left =   { GPoint(car_bounds.origin.x, car_bounds.origin.y + CAR_BOUNDARY_OFFSET),
@@ -404,7 +556,6 @@ uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent) {
   GPoint right_center = GPoint((right.p1.x + right.p2.x) / 2, (right.p1.y + right.p2.y) / 2);
   GPoint bottom_center = GPoint((bottom.p1.x + bottom.p2.x) / 2, (bottom.p1.y + bottom.p2.y) / 2);
 
-  uint8_t allowable_directions = DIRECTION_ALL;
   // Check center point of each wall of the car to see if it overlaps with the bounds of the opponent car - if any collide, mask out
   // the appropriate direction of collision
   if (pge_collision_line_rectangle(&top, &car_bounds_opponent) || pge_collision_point_rectangle(&top_center, &car_bounds_opponent)) {
@@ -423,6 +574,8 @@ uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent) {
   return allowable_directions;
 }
 
+// Updates the current checkpoint of the user to the next checkpoint based on whether the car
+// collides with the current checkpoint
 void update_checkpoints(Car *car_ptr) {
   if (car_ptr->current_checkpoint >= current_num_checkpoints) {
     return;
@@ -435,6 +588,9 @@ void update_checkpoints(Car *car_ptr) {
   }
 }
 
+// Updates a car's placement (i.e. 1st, 2nd, 3rd place). Each time this API is called, it updates
+// the placement of the car to the next available slot and also sets which finish box the car
+// should be placed in after finishing the race.
 void set_placement_position(Car *car_ptr) {
   int placement = car_ptr->placement;
   if (placement == CAR_PLACEMENT_UNSET) {
@@ -489,6 +645,8 @@ void update_placements(Car *car_ptr) {
   }
 }
 
+// Update the current angle of an opponent car. This is based on the relative positions of where
+// the car is and where the current track point is.
 void update_car_angle_opp(Car* car_ptr) {
   if (!car_ptr->moving) {
     return;
@@ -529,6 +687,7 @@ void update_car_angle_opp(Car* car_ptr) {
   pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
 }
 
+// Updates an opponent's track point to the next one if it overlaps with the current track point
 void update_track_point(Car *car_ptr) {
   GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
 
@@ -555,22 +714,35 @@ void update_track_point(Car *car_ptr) {
   }
 }
 
+// Returns true if car is colliding with the finish line
 static bool crossing_finish_line(Car *car_ptr) {
   GRect car_bounds = pge_sprite_get_bounds(car_ptr->sprite_color);
   GRect finish_line_rect = pge_sprite_get_bounds(current_level->finish_group->finish_line.sprite);
   return pge_collision_rectangle_rectangle(&car_bounds, &finish_line_rect);
 }
 
+// Updates the lap of the user car if it crosses the finish line and the current checkpoint is
+// greater than or equal to the last checkpoint - doesn't update if checkpoint is less or 0.
 void update_user_lap(Car *car_ptr) {
   bool current_state = crossing_finish_line(car_ptr);
-  if ((current_state != car_ptr->crossing_finish) && (car_ptr->crossing_finish == false) &&
+  bool crossing_finish = ((current_state != car_ptr->crossing_finish) && (car_ptr->crossing_finish == false));
+  if (crossing_finish &&
       (car_ptr->current_checkpoint >= current_num_checkpoints)) {
     car_ptr->lap++;
     car_ptr->current_checkpoint = 0; // Reset checkpoints for next lap
+
+    if ((car_ptr->lap <= NUM_LAPS_DEFAULT) && (s_cannonball_state == CANNONBALL_STATE_NONE)) {
+      cannonball_show();
+    }
+  } else if (crossing_finish && (car_ptr->lap == 1)) {
+    if ((car_ptr->lap <= NUM_LAPS_DEFAULT) && (s_cannonball_state == CANNONBALL_STATE_NONE)) {
+      cannonball_show();
+    }
   }
   car_ptr->crossing_finish = current_state;
 }
 
+// Update the state of the light signal based on the countdown timer
 void update_signal(int countdown) {
   if (countdown == 3) {
     pge_sprite_set_anim_frame(current_level->finish_group->light_signal.sprite, RESOURCE_ID_LIGHT_SIGNAL_NONE);
@@ -585,10 +757,12 @@ void update_signal(int countdown) {
   }
 }
 
+// Get the starting location of a car for the current level
 GPoint get_starting_location(int index) {
   return current_level->car_locations[index];
 }
 
+// Get the starting angle of a car for the current level
 int get_starting_angle() {
   return current_level->car_starting_angle;
 }

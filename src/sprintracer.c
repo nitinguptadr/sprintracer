@@ -34,13 +34,6 @@ static GRect s_game_bounds;
 
 static bool s_title_pushed = false;
 
-//#define DEBUG
-#ifdef DEBUG
-#define NUM_LAPS_DEFAULT 1
-#else
-#define NUM_LAPS_DEFAULT 3
-#endif
-
 static unsigned int s_num_laps = NUM_LAPS_DEFAULT;
 
 #define STATUS_LAYER_HEIGHT 16
@@ -190,23 +183,23 @@ static void update_car_position(Car* car_ptr) {
     uint8_t allowable_directions;
 
     if (car_ptr == car_user) {
-      allowable_directions = level_collision_walls(s_current_level, car_bounds);
+      allowable_directions = level_collision_walls(car_bounds);
     } else {
       allowable_directions = DIRECTION_ALL;
     }
 
     // Check if car collides with any other car
     if ((car_ptr != car_user) && (car_user->lap <= s_num_laps)) {
-      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_user->sprite_color));
+      allowable_directions &= level_collision_cars(car_bounds, car_user);
     }
     if ((car_ptr != car_opp1) && (car_opp1->lap <= s_num_laps)) {
-      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp1->sprite_color));
+      allowable_directions &= level_collision_cars(car_bounds, car_opp1);
     }
     if ((car_ptr != car_opp2) && (car_opp2->lap <= s_num_laps)) {
-      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp2->sprite_color));
+      allowable_directions &= level_collision_cars(car_bounds, car_opp2);
     }
     if ((car_ptr != car_opp3) && (car_opp3->lap <= s_num_laps)) {
-      allowable_directions &= level_collision_cars(car_bounds, pge_sprite_get_bounds(car_opp3->sprite_color));
+      allowable_directions &= level_collision_cars(car_bounds, car_opp3);
     }
 
     // Determine direction of moving car and based on allowable directions, update the car's
@@ -323,6 +316,8 @@ static void update_user_car() {
   }
 
   update_car_position(car_user);
+
+  cannonball_update(car_user, car_opp1, car_opp2, car_opp3);
 
   // Update what is visually seen on screen
   update_game_bounds(false);
@@ -555,6 +550,8 @@ static void click(int button_id, bool long_click) {
     } else if ((s_race_status == RACE_STATUS_ALL_FINISHED) && (s_game_mode == GAME_MODE_SINGLE_RACE)) {
       APP_LOG(APP_LOG_LEVEL_DEBUG, "Ending Single Race");
       game_deinit();
+    } else {
+      cannonball_fire(car_user);
     }
 #ifdef DEBUG
     car_user->moving = !car_user->moving;

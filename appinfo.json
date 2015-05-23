@@ -17,6 +17,7 @@
       {  "type": "png",  "name": "ARROW_N",  "file": "images/arrow_n.png" },
       {  "type": "png",  "name": "ARROW_S",  "file": "images/arrow_s.png" },
       {  "type": "png",  "name": "ARROW_W",  "file": "images/arrow_w.png" },
+      {  "type": "png",  "name": "CANNONBALL",  "file": "images/cannonball.png" },
       {  "type": "png",  "name": "CHECKPOINT_HORIZ_70",  "file": "images/checkpoint_horiz_70.png" },
       {  "type": "png",  "name": "CHECKPOINT_VERT_70",  "file": "images/checkpoint_vert_70.png" },
       {  "type": "png",  "name": "CROSS_ROAD_BIG",  "file": "images/cross_road_big.png" },

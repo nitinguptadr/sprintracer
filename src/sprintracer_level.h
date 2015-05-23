@@ -35,6 +35,10 @@ typedef struct {
   int car_starting_angle;
 } LevelSpriteDetails;
 
+void cannonball_fire(Car *car_ptr);
+
+void cannonball_update(Car *user, Car *opp1, Car *opp2, Car *opp3);
+
 // Intializes current level
 void level_initialize(Layer *game_layer, uint8_t level);
 
@@ -48,9 +52,9 @@ LevelNumId level_get_current();
 // Draw the current level
 void level_draw(GContext *ctx, GRect game_bounds);
 
-uint8_t level_collision_walls(LevelNumId level, GRect car_bounds);
+uint8_t level_collision_walls(GRect car_bounds);
 
-uint8_t level_collision_cars(GRect car_bounds, GRect car_bounds_opponent);
+uint8_t level_collision_cars(GRect car_bounds, Car *car_ptr);
 
 void update_checkpoints(Car *car_ptr);
 

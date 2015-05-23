@@ -24,6 +24,13 @@
 
 #define CAR_PLACEMENT_UNSET 0
 
+//#define DEBUG
+#ifdef DEBUG
+#define NUM_LAPS_DEFAULT 1
+#else
+#define NUM_LAPS_DEFAULT 3
+#endif
+
 typedef enum {
   LEVEL0_ID,
   LEVEL1_ID,
