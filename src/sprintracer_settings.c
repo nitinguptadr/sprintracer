@@ -2,7 +2,7 @@
 #include "sprintracer_level.h"
 #include "pge/additional/pge_title.h"
 
-#define VERSION_STR "Version 1.0"
+#define VERSION_STR "Version 1.1"
 #define AUTHOR_STR "Author: Nitin Gupta"
 
 // UI
@@ -56,7 +56,7 @@ static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, ui
   switch (section_index) {
     case 0:
       // Draw title text in the section header
-      menu_cell_basic_header_draw(ctx, cell_layer, "CONTROLS:");
+      menu_cell_basic_header_draw(ctx, cell_layer, "CONTROLS:  (SEL=Fire)");
       break;
     case 2: {
       // Draw title text in the section header
