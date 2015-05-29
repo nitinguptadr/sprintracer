@@ -26,7 +26,7 @@
 
 //#define DEBUG
 
-#define DEBUGLAPS
+//#define DEBUGLAPS
 #ifdef DEBUGLAPS
 #define NUM_LAPS_DEFAULT 1
 #else
