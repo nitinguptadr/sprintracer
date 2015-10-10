@@ -6,7 +6,7 @@ static Window *s_window;
 static Layer *s_canvas;
 static GBitmap *s_car_line;
 static GBitmap *s_single_race;
-static GBitmap *s_sprintracer;
+static GBitmap *s_sprintracer_title;
 static GBitmap *s_settings;
 static GBitmap *s_tournament;
 static GBitmap *s_bush;
@@ -38,14 +38,35 @@ static void draw_title(Layer *layer, GContext *ctx) {
   graphics_fill_rect(ctx, layer_get_frame(s_canvas), 0, GCornerNone);
 
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
+
+#if defined(PBL_ROUND)
+  GRect bounds = gbitmap_get_bounds(s_car_line);
+  graphics_draw_bitmap_in_rect(ctx, s_car_line, GRect(20, 22, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_single_race);
+  graphics_draw_bitmap_in_rect(ctx, s_single_race, GRect(65, 10, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_sprintracer_title);
+  graphics_draw_bitmap_in_rect(ctx, s_sprintracer_title, GRect(42, 60, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_settings);
+  graphics_draw_bitmap_in_rect(ctx, s_settings, GRect(65, 152, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_tournament);
+  graphics_draw_bitmap_in_rect(ctx, s_tournament, GRect(155, 45, bounds.size.w, bounds.size.h));
+
+  bounds = gbitmap_get_bounds(s_bush);
+  graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(35, 10, bounds.size.w, bounds.size.h));
+  graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(35, 115, bounds.size.w, bounds.size.h));
+#else
   GRect bounds = gbitmap_get_bounds(s_car_line);
   graphics_draw_bitmap_in_rect(ctx, s_car_line, GRect(4, 2, bounds.size.w, bounds.size.h));
 
   bounds = gbitmap_get_bounds(s_single_race);
   graphics_draw_bitmap_in_rect(ctx, s_single_race, GRect(65, 10, bounds.size.w, bounds.size.h));
 
-  bounds = gbitmap_get_bounds(s_sprintracer);
-  graphics_draw_bitmap_in_rect(ctx, s_sprintracer, GRect(22, 60, bounds.size.w, bounds.size.h));
+  bounds = gbitmap_get_bounds(s_sprintracer_title);
+  graphics_draw_bitmap_in_rect(ctx, s_sprintracer_title, GRect(22, 60, bounds.size.w, bounds.size.h));
 
   bounds = gbitmap_get_bounds(s_settings);
   graphics_draw_bitmap_in_rect(ctx, s_settings, GRect(65, 142, bounds.size.w, bounds.size.h));
@@ -57,6 +78,7 @@ static void draw_title(Layer *layer, GContext *ctx) {
   graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(25, 10, bounds.size.w, bounds.size.h));
   graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(5, 133, bounds.size.w, bounds.size.h));
   graphics_draw_bitmap_in_rect(ctx, s_bush, GRect(35, 115, bounds.size.w, bounds.size.h));
+#endif
 }
 
 /********************************* Window *************************************/
@@ -86,8 +108,8 @@ static void window_appear(Window *window) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_single_race");
   }
 
-  s_sprintracer = gbitmap_create_with_resource(RESOURCE_ID_TITLE_LOGO);
-  if (!s_sprintracer) {
+  s_sprintracer_title = gbitmap_create_with_resource(RESOURCE_ID_TITLE_LOGO);
+  if (!s_sprintracer_title) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Could not allocate s_sprintracer");
   }
 
@@ -124,9 +146,9 @@ static void window_disappear(Window *window) {
     gbitmap_destroy(s_single_race);
     s_single_race = NULL;
   }
-  if (s_sprintracer) {
-    gbitmap_destroy(s_sprintracer);
-    s_sprintracer = NULL;
+  if (s_sprintracer_title) {
+    gbitmap_destroy(s_sprintracer_title);
+    s_sprintracer_title = NULL;
   }
   if (s_settings) {
     gbitmap_destroy(s_settings);

@@ -75,6 +75,34 @@ static void click_config_provider(void *context) {
   window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+static GPathInfo pathinfo = {3, (GPoint[]) {{0, 0}, {-10, -10}, {10, -10}}};
+static GPathInfo pathinfo2 = {3, (GPoint[]) {{0, 0}, {-10, 10}, {10, 10}}};
+void update_window(struct Layer *layer, GContext *ctx) {
+  GRect window_bounds = layer_get_bounds(layer);
+  graphics_context_set_fill_color(ctx, GColorJaegerGreen);
+  graphics_fill_rect(ctx, window_bounds, 0, GCornerNone);
+
+  graphics_context_set_fill_color(ctx, GColorWhite);
+  GPath* path = gpath_create(&pathinfo);
+
+#if defined(PBL_ROUND)
+  gpath_move_to(path, GPoint(20, SCREEN_RES_ROWS / 2 + 10));
+#else
+  gpath_move_to(path, GPoint(20, 40));
+#endif
+  gpath_draw_filled(ctx, path);
+  gpath_destroy(path);
+
+  path = gpath_create(&pathinfo2);
+#if defined(PBL_ROUND)
+  gpath_move_to(path, GPoint(20, SCREEN_RES_ROWS / 2 - 20));
+#else
+  gpath_move_to(path, GPoint(20, 10));
+#endif
+  gpath_draw_filled(ctx, path);
+  gpath_destroy(path);
+}
+
 /********************************* Window *************************************/
 
 static void window_load(Window *window) {
@@ -82,6 +110,8 @@ static void window_load(Window *window) {
   GRect window_bounds = layer_get_bounds(window_layer);
 
   window_set_background_color(window, GColorJaegerGreen);
+
+  layer_set_update_proc(window_layer, update_window);
 
   LevelNumId current_level = level_get_current();
 

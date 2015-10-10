@@ -2,7 +2,7 @@
 #include "sprintracer_level.h"
 #include "pge/additional/pge_title.h"
 
-#define VERSION_STR "Version 1.2"
+#define VERSION_STR "Version 1.3"
 #define AUTHOR_STR "Author: Nitin Gupta"
 
 // UI
@@ -14,7 +14,11 @@ static bool s_button_actions_set = false;
 static int s_button_actions_index = 0;
 
 #define NUM_MENU_SECTIONS     5
+#if defined(PBL_ROUND)
+#define NUM_CONTROLS_ITEMS    1
+#else
 #define NUM_CONTROLS_ITEMS    2
+#endif
 #define NUM_HIGH_SCORE_ITEMS  1
 #define NUM_ABOUT_ITEMS       1
 
@@ -48,29 +52,62 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
   }
 }
 
+
+static void prv_menu_cell_basic_header_draw(GContext* ctx, const Layer *cell_layer, const char *title) {
+  // Title:
+  if (title) {
+    GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+    GRect box = layer_get_bounds(cell_layer);
+    // Pixel nudging...
+    box.origin.x += 2;
+    box.origin.y += MENU_CELL_BASIC_HEADER_HEIGHT;
+    graphics_draw_text(ctx, title, font, box, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  }
+}
+
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+#if defined(PBL_ROUND)
+  return 3 * MENU_CELL_BASIC_HEADER_HEIGHT;
+#else
   return MENU_CELL_BASIC_HEADER_HEIGHT;
+#endif
 }
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
   // Determine which section we're working with
   switch (section_index) {
     case 0:
       // Draw title text in the section header
+#if defined(PBL_ROUND)
+      prv_menu_cell_basic_header_draw(ctx, cell_layer, "CONTROLS:\n(SEL=Fire)");
+#else
       menu_cell_basic_header_draw(ctx, cell_layer, "CONTROLS:  (SEL=Fire)");
+#endif
       break;
     case 2: {
       // Draw title text in the section header
       char buff[20];
       snprintf(buff, sizeof(buff), "HIGH SCORE: %d", pge_title_get_highscore());
+#if defined(PBL_ROUND)
+      prv_menu_cell_basic_header_draw(ctx, cell_layer, buff);
+#else
       menu_cell_basic_header_draw(ctx, cell_layer, buff);
+#endif
       break;
     }
     case 4: 
       // Draw title text in the section header
+#if defined(PBL_ROUND)
+      prv_menu_cell_basic_header_draw(ctx, cell_layer, "ABOUT:");
+#else
       menu_cell_basic_header_draw(ctx, cell_layer, "ABOUT:");
+#endif
       break;
     default:
+#if defined(PBL_ROUND)
+      prv_menu_cell_basic_header_draw(ctx, cell_layer, "");
+#else
       menu_cell_basic_header_draw(ctx, cell_layer, "");
+#endif
       break;
   }
 }
@@ -79,6 +116,15 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
   // Use the row to specify which item we'll draw
   graphics_context_set_compositing_mode(ctx, GCompOpSet);
   if (cell_index->section == 0) {
+#if defined(PBL_ROUND)
+    if (s_button_actions_index == 0) {
+      menu_cell_basic_draw(ctx, cell_layer, "UP=CW, DOWN=CCW", "Press Select to Toggle", NULL);
+    } else if (s_button_actions_index == 1) {
+      menu_cell_basic_draw(ctx, cell_layer, "UP=CCW, DOWN=CW", "Press Select to Toggle", NULL);
+    } else {
+      menu_cell_basic_draw(ctx, cell_layer, "ERROR", NULL, NULL);
+    }
+#else
     switch (cell_index->row) {
       case 0:
         menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 0 ? "Selected" : NULL, "UP=CW, DOWN=CCW", s_button_actions_index == 0 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
@@ -87,6 +133,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
         menu_cell_basic_draw(ctx, cell_layer, s_button_actions_index == 1 ? "Selected" : NULL, "UP=CCW, DOWN=CW", s_button_actions_index == 1 ? NULL /*s_controls_bitmaps[0]*/ : NULL);
         break;
     }
+#endif
   } else if (cell_index->section == 2) {
     menu_cell_basic_draw(ctx, cell_layer, "Reset High Score?", "Press Select", NULL);
   } else if (cell_index->section == 4) {
@@ -97,6 +144,17 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
 static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *data) {
   // Use the row to specify which item will receive the select action
   if (cell_index->section == 0) {
+#if defined(PBL_ROUND)
+    ButtonActionIds* current_actions = get_button_actions();
+    // Toggle
+    if (current_actions->clockwise == BUTTON_ID_UP) {
+      set_button_actions(BUTTON_ID_DOWN, BUTTON_ID_SELECT, BUTTON_ID_UP);
+      s_button_actions_index = 1;
+    } else {
+      set_button_actions(BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN);
+      s_button_actions_index = 0;
+    }
+#else
     switch (cell_index->row) {
       case 0:
         set_button_actions(BUTTON_ID_UP, BUTTON_ID_SELECT, BUTTON_ID_DOWN);
@@ -107,6 +165,7 @@ static void menu_select_callback(MenuLayer *menu_layer, MenuIndex *cell_index, v
         s_button_actions_index = cell_index->row;
         break;
     }
+#endif
   } else if (cell_index->section == 2) {
     pge_title_set_highscore(0);
   }

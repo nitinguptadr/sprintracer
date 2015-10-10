@@ -45,7 +45,23 @@ static uint16_t menu_get_num_rows_callback(MenuLayer *menu_layer, uint16_t secti
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer *menu_layer, uint16_t section_index, void *data) {
+#if defined(PBL_ROUND)
+  return 3 * MENU_CELL_BASIC_HEADER_HEIGHT;
+#else
   return MENU_CELL_BASIC_HEADER_HEIGHT;
+#endif
+}
+
+static void prv_menu_cell_basic_header_draw(GContext* ctx, const Layer *cell_layer, const char *title) {
+  // Title:
+  if (title) {
+    GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+    GRect box = layer_get_bounds(cell_layer);
+    // Pixel nudging...
+    box.origin.x += 2;
+    box.origin.y += MENU_CELL_BASIC_HEADER_HEIGHT;
+    graphics_draw_text(ctx, title, font, box, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+  }
 }
 
 static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
@@ -53,7 +69,11 @@ static void menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, ui
   switch (section_index) {
     default:
       // Draw title text in the section header
+#if defined(PBL_ROUND)
+      prv_menu_cell_basic_header_draw(ctx, cell_layer, "Select Your Car");
+#else
       menu_cell_basic_header_draw(ctx, cell_layer, "Select Your Car");
+#endif
       break;
   }
 }

@@ -37,7 +37,12 @@ static bool s_title_pushed = false;
 static unsigned int s_num_laps = NUM_LAPS_DEFAULT;
 
 #define STATUS_LAYER_HEIGHT 16
+#if defined(PBL_ROUND)
+#define STATUS_LAYER_ROUND_XOFFSET 80
+#define STATUS_LAYER_RECT GRect(0, SCREEN_RES_ROWS - 2 * STATUS_LAYER_HEIGHT, SCREEN_RES_COLS, 2 * STATUS_LAYER_HEIGHT)
+#else
 #define STATUS_LAYER_RECT GRect(0, SCREEN_RES_ROWS - STATUS_LAYER_HEIGHT, SCREEN_RES_COLS, STATUS_LAYER_HEIGHT)
+#endif
 static TextLayer *s_status_layer;
 static char s_status_text[30];
 
@@ -249,11 +254,17 @@ void update_game_bounds(bool force) {
   if (!force) {
     s_game_bounds = GRect(-(car_bounds.origin.x - (SCREEN_RES_COLS / 2)), -(car_bounds.origin.y - (SCREEN_RES_ROWS / 2)),
                               SCREEN_RES_COLS, SCREEN_RES_ROWS);
+#if defined(PBL_ROUND)
+    status_rect = GRect(car_bounds.origin.x - (SCREEN_RES_COLS / 2) + (STATUS_LAYER_ROUND_XOFFSET / 2),
+                        car_bounds.origin.y + (SCREEN_RES_ROWS / 2) - (2*STATUS_LAYER_HEIGHT),
+                        SCREEN_RES_COLS - STATUS_LAYER_ROUND_XOFFSET, 2*STATUS_LAYER_HEIGHT);
+#else
     status_rect = GRect(car_bounds.origin.x - (SCREEN_RES_COLS / 2), car_bounds.origin.y + (SCREEN_RES_ROWS / 2) - STATUS_LAYER_HEIGHT,
-                              SCREEN_RES_COLS, STATUS_LAYER_HEIGHT);
+                        SCREEN_RES_COLS, STATUS_LAYER_HEIGHT);
+#endif
   } else {
     s_game_bounds = GRect(0, 0,SCREEN_RES_COLS, SCREEN_RES_ROWS);
-    status_rect = GRect(0, SCREEN_RES_ROWS - STATUS_LAYER_HEIGHT, SCREEN_RES_COLS, STATUS_LAYER_HEIGHT);
+    status_rect = STATUS_LAYER_RECT;
   }
 
   layer_set_bounds(game_layer, s_game_bounds);
@@ -455,6 +466,11 @@ static void logic() {
 
 void draw(GContext *ctx) {
   if (s_race_status == RACE_STATUS_FINAL_SCORE) {
+#if defined(PBL_ROUND)
+    int offset = 15; // horizontal offset to account for round
+#else
+    int offset = 0;
+#endif
     // Draw Final Scoreboard
     graphics_context_set_fill_color(ctx, GColorJaegerGreen);
     graphics_fill_rect(ctx, GRect(0, 0, SCREEN_RES_COLS, SCREEN_RES_ROWS), 0, GCornerNone);
@@ -462,19 +478,19 @@ void draw(GContext *ctx) {
     // Draw Cars
     car_user->angle = 0;
     pge_sprite_set_rotation(car_user->sprite_color, DEG_TO_TRIG_ANGLE(0));
-    pge_sprite_set_position(car_user->sprite_color, GPoint(32, 54));
+    pge_sprite_set_position(car_user->sprite_color, GPoint(offset + 32, 54));
 
     car_opp1->angle = 0;
     pge_sprite_set_rotation(car_opp1->sprite_color, DEG_TO_TRIG_ANGLE(0));
-    pge_sprite_set_position(car_opp1->sprite_color, GPoint(32, 78));
+    pge_sprite_set_position(car_opp1->sprite_color, GPoint(offset + 32, 78));
 
     car_opp2->angle = 0;
     pge_sprite_set_rotation(car_opp2->sprite_color, DEG_TO_TRIG_ANGLE(0));
-    pge_sprite_set_position(car_opp2->sprite_color, GPoint(32, 102));
+    pge_sprite_set_position(car_opp2->sprite_color, GPoint(offset + 32, 102));
 
     car_opp3->angle = 0;
     pge_sprite_set_rotation(car_opp3->sprite_color, DEG_TO_TRIG_ANGLE(0));
-    pge_sprite_set_position(car_opp3->sprite_color, GPoint(32, 126));
+    pge_sprite_set_position(car_opp3->sprite_color, GPoint(offset + 32, 126));
 
     car_draw(car_user, ctx);
     car_draw(car_opp1, ctx);
@@ -503,16 +519,20 @@ void draw(GContext *ctx) {
       snprintf(buff, sizeof(buff), "You came in\nlast place :(");
     }
     graphics_context_set_text_color(ctx, GColorWhite);
-    graphics_draw_text(ctx, buff, font, GRect(4, 4, 140, 52), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+#if defined(PBL_ROUND)
+    graphics_draw_text(ctx, buff, font, GRect(offset + 4, 6, 140, 52), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+#else
+    graphics_draw_text(ctx, buff, font, GRect(offset + 4, 4, 140, 52), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+#endif
 
     snprintf(buff, sizeof(buff), "Score: %d", s_scores[0]);
-    graphics_draw_text(ctx, buff, font, GRect(32, 50, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, buff, font, GRect(offset + 32, 50, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     snprintf(buff, sizeof(buff), "Score: %d", s_scores[1]);
-    graphics_draw_text(ctx, buff, font, GRect(32, 74, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, buff, font, GRect(offset + 32, 74, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     snprintf(buff, sizeof(buff), "Score: %d", s_scores[2]);
-    graphics_draw_text(ctx, buff, font, GRect(32, 98, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, buff, font, GRect(offset + 32, 98, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
     snprintf(buff, sizeof(buff), "Score: %d", s_scores[3]);
-    graphics_draw_text(ctx, buff, font, GRect(32, 122, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+    graphics_draw_text(ctx, buff, font, GRect(offset + 32, 122, 100, 26), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
   } else {
     // Clear board

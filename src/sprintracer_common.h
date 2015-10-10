@@ -2,8 +2,13 @@
 
 #include "pge/additional/pge_sprite.h"
 
+#ifdef PBL_PLATFORM_CHALK
+#define SCREEN_RES_ROWS 180
+#define SCREEN_RES_COLS 180
+#else
 #define SCREEN_RES_ROWS 168
 #define SCREEN_RES_COLS 144
+#endif
 
 // Mask to determine which direction the car can travel
 #define DIRECTION_NONE  0
