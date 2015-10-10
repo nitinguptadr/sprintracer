@@ -19,11 +19,11 @@
 // 18px by 18 px - 45 degrees
 
 #define CAR_SIZE 18
-#define CAR_SPEED_DEFAULT 3.5
+#define CAR_SPEED_DEFAULT 4.5
 #define CAR_SPEED_MAX 5
 #define ANGLE_CHANGE_RESOURCE 45
 #define ANGLE_MASK 360
-static float car_speed = CAR_SPEED_DEFAULT;
+static float car_speed = (CAR_SPEED_DEFAULT / TRIG_MAX_RATIO);
 
 static Window *s_game_window;
 static TextLayer *s_game_info_layer;
@@ -210,8 +210,8 @@ static void update_car_position(Car* car_ptr) {
     // Determine direction of moving car and based on allowable directions, update the car's
     // new position
     int32_t angle = DEG_TO_TRIG_ANGLE(car_ptr->angle);
-    float sin_value = ((float)sin_lookup(angle)) / TRIG_MAX_RATIO;
-    float cos_value = ((float)cos_lookup(angle)) / TRIG_MAX_RATIO;
+    int32_t sin_value = sin_lookup(angle);
+    int32_t cos_value = cos_lookup(angle);
     float x_direction = car_speed*sin_value;
     float y_direction = -car_speed*cos_value;
 
@@ -651,10 +651,8 @@ extern int get_car_selection(int index);
 void game_init() {
   game_deinit();
   
-  car_speed = CAR_SPEED_DEFAULT;
-
   s_game_window = pge_begin(GColorBlack, logic, draw, click);
-  pge_set_framerate(20);
+  pge_set_framerate(30);
 
   Layer *game_layer = pge_get_canvas();
 
@@ -724,10 +722,6 @@ void game_init() {
   s_countdown_timer = NULL;
   s_countdown = 3;
 
-  if (car_speed == 0) {
-    car_speed = CAR_SPEED_DEFAULT;
-  }
-
   s_game_initialized = true;
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Game initialized");
@@ -766,7 +760,6 @@ void title_click(int button_id, bool long_click) {
 /******************************** App *****************************************/
 void pge_init() {
   //srand(time(NULL));
-  car_speed = CAR_SPEED_DEFAULT;
 
   s_game_initialized = false;
   title_push(title_click);

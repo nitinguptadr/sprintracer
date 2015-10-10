@@ -33,7 +33,7 @@ static uint32_t s_oilslick_counter = 0;
 
 static void oilslick_timer_handler(void *context) {
   Car *car_ptr = (Car *)context;
-  if (s_oilslick_counter >= 1000) {
+  if (s_oilslick_counter >= 500) {
     // Restore to original angle and set the car to move
     car_ptr->angle = s_oilslick_car_angle;
     pge_sprite_set_rotation(car_ptr->sprite_color, DEG_TO_TRIG_ANGLE(car_ptr->angle));
